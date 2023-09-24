@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,body{
+  @apply box-border h-full;
+  
+}
+::-webkit-scrollbar{
+  width: 0;
+  height: 0;
+}
+
+.dragable {
+  -webkit-app-region: drag;
+}
+
+.undragable,.el-popper {
+  -webkit-app-region: no-drag;
+}
+
+.text-shadow {
+  text-shadow: #f87171 1px 0 0,
+    #fca5a5 2px 0 0,
+    #f87171 0 1px 0,
+    #fca5a5 0 2px 0,
+    #fecaca 0 3px 0;
+}
+
+/* @media screen {
+  
+} */
+
+
+
+.el-input,.el-select{
+  @apply w-full
+}

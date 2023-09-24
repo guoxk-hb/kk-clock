@@ -1,0 +1,23 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ],
+  "compilerOptions":{
+    "types": ["element-plus/global","node"],
+    "baseUrl": "./",
+    "paths": {
+      "@/*":["src/*"]
+    }
+  },
+  "include": [
+    "src/**/*.vue",
+    "src/**/*.ts",
+    "env.d.ts",
+  ],
+}
