@@ -9,11 +9,12 @@
     }
   ],
   "compilerOptions":{
-    "types": ["element-plus/global","node"],
+    "types": ["element-plus/global","node","electron"],
     "baseUrl": "./",
     "paths": {
       "@/*":["src/*"]
-    }
+    },
+    "moduleResolution": "Node",
   },
   "include": [
     "src/**/*.vue",
