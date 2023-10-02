@@ -4,7 +4,7 @@
 	>
 		<el-form :model="scheduleForm" ref="form" :rules="rules">
 			<el-row :gutter="20" class="">
-				<el-col :span="12" :offset="0">
+			 <el-col :span="12" :offset="0">
 					<el-form-item prop="text" label="">
 						<el-input
 							class="undragable"
@@ -19,7 +19,7 @@
 						</el-input>
 					</el-form-item>
 				</el-col>
-				<el-col :span="4" :offset="0">
+			<el-col :span="4" :offset="0">
 					<el-form-item prop="week" label="">
 						<el-select
 							class="undragable"
@@ -68,13 +68,18 @@
 							<input v-else />
 						</template>
 			</el-table-column>
+			<el-table-column header-align="center" align="center" prop="date" label="时间">
+			</el-table-column>
 			<el-table-column header-align="center" align="center" prop="week" label="重复">
 			</el-table-column>
-			<el-table-column header-align="center" align="center" prop="date" label="时间">
+			<el-table-column header-align="center" align="center" prop="switch" label="开关">
+				<template #default="scope">
+				<el-switch v-model="scope.row.switch" />
+			</template>
 			</el-table-column>
 			<el-table-column header-align="center" align="center" label="操作">
 				<template #default="scope">
-					<el-link type="primary" @click="editTask(scope.row)">
+					<el-link v-if="!scope.row.edit" type="primary" @click="editTask(scope.row)">
 						<template #icon>
 							<el-icon class="mx-1">
 								<i-ep-edit-pen></i-ep-edit-pen>
@@ -82,7 +87,7 @@
 						</template>
 						编辑
 					</el-link>
-					<el-link type="danger" class="mx-[10px]" @click="deleteTask(scope.$index)">
+					<el-link v-if="!scope.row.edit" type="danger" class="mx-[10px]" @click="deleteTask(scope.$index)">
 						<template #icon>
 							<el-icon class="mx-1">
 								<i-ep-delete></i-ep-delete>
@@ -90,21 +95,21 @@
 						</template>
 						删除
 					</el-link>
-										<el-link type="danger" class="mx-[10px]" @click="saveTask(scope.$index)">
+					<el-link v-if="scope.row.edit" type="success" class="mx-[10px]" @click="saveTask(scope.row)">
 						<template #icon>
 							<el-icon class="mx-1">
-								<i-ep-delete></i-ep-delete>
+								<i-ep-check></i-ep-check>
 							</el-icon>
 						</template>
-						删除
+						保存
 					</el-link>
-										<el-link type="danger" class="mx-[10px]" @click="cancelTask(scope.$index)">
+					<el-link v-if="scope.row.edit" type="info" class="mx-[10px]" @click="cancelTask(scope.row)">
 						<template #icon>
 							<el-icon class="mx-1">
-								<i-ep-delete></i-ep-delete>
+								<i-ep-close></i-ep-close>
 							</el-icon>
 						</template>
-						删除
+						取消
 					</el-link>
 				</template>
 			</el-table-column>
@@ -113,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-	import { reactive, toRaw } from 'vue'
+	import { reactive, toRaw  } from 'vue'
 	import { weekOptions } from '@/common/dict'
 	const rules = reactive({
 		text: [
@@ -137,12 +142,14 @@
 		text: string
 		week: Array<number>
 		date: string
-		eidt: boolean
+		switch:boolean
+		edit: boolean
 	}
 	const scheduleForm: task = reactive({
 		text: '',
-		week: '',
+		week: [],
 		date: null,
+		switch:true,
 		edit: false
 	})
 	let scheduleTable = reactive([])
@@ -197,12 +204,12 @@
 		row.edit=true
 	}
 	//保存
-	const saveTask=()=>{
+	const saveTask=(index)=>{
 
 	}
 	//取消
-	const cancelTask=()=>{
-
+	const cancelTask=(row)=>{
+		row.edit=false
 	}
 	async function initScheduleTable() {
 		let task = await window.electronAPI.readTask()
