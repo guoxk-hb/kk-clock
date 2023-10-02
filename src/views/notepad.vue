@@ -63,6 +63,10 @@
 		</el-form>
 		<el-table :data="scheduleTable">
 			<el-table-column header-align="center" align="center" prop="text" label="事情">
+						<template #default="scope">
+							<span v-if="!scope.row.edit">{{scope.row.text}}</span>
+							<input v-else />
+						</template>
 			</el-table-column>
 			<el-table-column header-align="center" align="center" prop="week" label="重复">
 			</el-table-column>
@@ -70,7 +74,7 @@
 			</el-table-column>
 			<el-table-column header-align="center" align="center" label="操作">
 				<template #default="scope">
-					<el-link type="primary">
+					<el-link type="primary" @click="editTask(scope.row)">
 						<template #icon>
 							<el-icon class="mx-1">
 								<i-ep-edit-pen></i-ep-edit-pen>
@@ -79,6 +83,22 @@
 						编辑
 					</el-link>
 					<el-link type="danger" class="mx-[10px]" @click="deleteTask(scope.$index)">
+						<template #icon>
+							<el-icon class="mx-1">
+								<i-ep-delete></i-ep-delete>
+							</el-icon>
+						</template>
+						删除
+					</el-link>
+										<el-link type="danger" class="mx-[10px]" @click="saveTask(scope.$index)">
+						<template #icon>
+							<el-icon class="mx-1">
+								<i-ep-delete></i-ep-delete>
+							</el-icon>
+						</template>
+						删除
+					</el-link>
+										<el-link type="danger" class="mx-[10px]" @click="cancelTask(scope.$index)">
 						<template #icon>
 							<el-icon class="mx-1">
 								<i-ep-delete></i-ep-delete>
@@ -126,6 +146,7 @@
 		edit: false
 	})
 	let scheduleTable = reactive([])
+	//增
 	const addTask = () => {
 		if (scheduleForm.text === '') {
 			ElMessage({
@@ -145,9 +166,10 @@
 		scheduleTable.push(task)
 		window.electronAPI.writeTask(toRaw(scheduleTable))
 	}
+	//删
 	const deleteTask = (index) => {
 		// console.log(index,"row");
-		ElMessageBox.alert('确定要删除此任务吗?', 'warning', {
+		ElMessageBox.confirm('确定要删除此任务吗?', 'warning', {
 			// if you want to disable its autofocus
 			// autofocus: false,
 			confirmButtonText: '确定',
@@ -170,7 +192,18 @@
 				})
 			})
 	}
+  //改
+	const editTask=(row)=>{
+		row.edit=true
+	}
+	//保存
+	const saveTask=()=>{
 
+	}
+	//取消
+	const cancelTask=()=>{
+
+	}
 	async function initScheduleTable() {
 		let task = await window.electronAPI.readTask()
 		scheduleTable.push(...task)
