@@ -4,6 +4,7 @@ interface task{
   text: string
   week: Array<number>
   date: string
+  switch:boolean
   edit: boolean
 }
 type PromiseTask=Promise<Array<task|never>>
