@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import formateTime from '@/common/formateTime'
+import {formateTime} from '@/common/common'
 import { onMounted, reactive,ref } from 'vue'
 
 
