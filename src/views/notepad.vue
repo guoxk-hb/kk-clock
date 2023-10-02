@@ -4,7 +4,7 @@
 	>
 		<el-form :model="scheduleForm" ref="form" :rules="rules">
 			<el-row :gutter="20" class="">
-				<el-col :span="12" :offset="0">
+			 <el-col :span="12" :offset="0">
 					<el-form-item prop="text" label="">
 						<el-input
 							class="undragable"
@@ -14,36 +14,48 @@
 							clearable
 						>
 							<template #prefix>
-								<i-ep-editPen></i-ep-editPen>
+								<i-ep-edit></i-ep-edit>
 							</template>
 						</el-input>
 					</el-form-item>
 				</el-col>
-				<el-col :span="4" :offset="0">
+			<el-col :span="4" :offset="0">
 					<el-form-item prop="week" label="">
 						<el-select
 							class="undragable"
 							v-model="scheduleForm.week"
-							value-key=""
 							placeholder="重复"
 							clearable
 							filterable
-							@change=""
+							multiple
+							collapse-tags
+							collapse-tags-tooltip
+							:max-collapse-tags="1"
 						>
-							<!-- <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
-          </el-option> -->
+							<el-option
+								v-for="item in weekOptions"
+								:key="item.value"
+								:label="item.label"
+								:value="item.value"
+							>
+							</el-option>
 						</el-select>
 					</el-form-item>
 				</el-col>
 				<el-col :span="4" :offset="0">
 					<el-form-item prop="date" class="undragable" label="">
-						<el-time-picker style="width: 200rem" v-model="scheduleForm.date" placeholder="时间">
+						<el-time-picker
+							v-model="scheduleForm.date"
+							placeholder="时间"
+							format="HH:mm"
+							value-format="HH:mm"
+						>
 						</el-time-picker>
 					</el-form-item>
 				</el-col>
 				<el-col :span="4" :offset="0">
 					<el-form-item>
-						<el-button class="undragable" type="primary" @click="creatTask">创建</el-button>
+						<el-button class="undragable" type="primary" @click="addTask">创建</el-button>
 						<el-button class="undragable">取消</el-button>
 					</el-form-item>
 				</el-col>
@@ -51,58 +63,106 @@
 		</el-form>
 		<el-table :data="scheduleTable">
 			<el-table-column header-align="center" align="center" prop="text" label="事情">
+						<template #default="scope">
+							<span v-if="!scope.row.edit">{{scope.row.text}}</span>
+							<input v-else />
+						</template>
+			</el-table-column>
+			<el-table-column header-align="center" align="center" prop="date" label="时间">
 			</el-table-column>
 			<el-table-column header-align="center" align="center" prop="week" label="重复">
 			</el-table-column>
-			<el-table-column header-align="center" align="center" prop="date" label="时间">
+			<el-table-column header-align="center" align="center" prop="switch" label="开关">
+				<template #default="scope">
+				<el-switch v-model="scope.row.switch" />
+			</template>
+			</el-table-column>
+			<el-table-column header-align="center" align="center" label="操作">
+				<template #default="scope">
+					<el-link v-if="!scope.row.edit" type="primary" @click="editTask(scope.row)">
+						<template #icon>
+							<el-icon class="mx-1">
+								<i-ep-edit-pen></i-ep-edit-pen>
+							</el-icon>
+						</template>
+						编辑
+					</el-link>
+					<el-link v-if="!scope.row.edit" type="danger" class="mx-[10px]" @click="deleteTask(scope.$index)">
+						<template #icon>
+							<el-icon class="mx-1">
+								<i-ep-delete></i-ep-delete>
+							</el-icon>
+						</template>
+						删除
+					</el-link>
+					<el-link v-if="scope.row.edit" type="success" class="mx-[10px]" @click="saveTask(scope.row)">
+						<template #icon>
+							<el-icon class="mx-1">
+								<i-ep-check></i-ep-check>
+							</el-icon>
+						</template>
+						保存
+					</el-link>
+					<el-link v-if="scope.row.edit" type="info" class="mx-[10px]" @click="cancelTask(scope.row)">
+						<template #icon>
+							<el-icon class="mx-1">
+								<i-ep-close></i-ep-close>
+							</el-icon>
+						</template>
+						取消
+					</el-link>
+				</template>
 			</el-table-column>
 		</el-table>
 	</div>
 </template>
 
 <script setup lang="ts">
-	import { reactive } from 'vue'
+	import { reactive, toRaw  } from 'vue'
+	import { weekOptions } from '@/common/dict'
 	const rules = reactive({
-		text: {
-			type: 'string',
-			required: true,
-			message: '请输入文字',
-			trigger: 'blur'
-		},
-		date: {
-			type: 'date',
-			required: true,
-			message: '请选择时间',
-			trigger: 'change'
-		}
+		text: [
+			{
+				required: true,
+				message: '请输入文字',
+				trigger: 'blur'
+			}
+		],
+		date: [
+			{
+				// type: 'date',
+				required: true,
+				message: '请选择时间',
+				trigger: 'change'
+			}
+		]
 	})
-	const scheduleForm: {
+
+	interface task {
 		text: string
-		week: string
+		week: Array<number>
 		date: string
-	} = reactive({
+		switch:boolean
+		edit: boolean
+	}
+	const scheduleForm: task = reactive({
 		text: '',
-		week: '星期一',
-		date: ''
+		week: [],
+		date: null,
+		switch:true,
+		edit: false
 	})
-	const scheduleTable = reactive([
-		{
-			text: 123,
-			week: '1',
-			date: '18:00:00'
-		}
-	])
-	const creatTask = () => {
+	let scheduleTable = reactive([])
+	//增
+	const addTask = () => {
 		if (scheduleForm.text === '') {
-			// console.log("请输入task");
 			ElMessage({
 				message: '请输入task。',
 				type: 'warning'
 			})
 			return
 		}
-		if (scheduleForm.date === '') {
-			console.log('请选择时间')
+		if (scheduleForm.date === null) {
 			ElMessage({
 				message: '请选择时间',
 				type: 'warning'
@@ -111,10 +171,51 @@
 		}
 		const task = Object.assign({}, toRaw(scheduleForm))
 		scheduleTable.push(task)
+		window.electronAPI.writeTask(toRaw(scheduleTable))
 	}
+	//删
+	const deleteTask = (index) => {
+		// console.log(index,"row");
+		ElMessageBox.confirm('确定要删除此任务吗?', 'warning', {
+			// if you want to disable its autofocus
+			// autofocus: false,
+			confirmButtonText: '确定',
+			cancelButtonText: '取消',
+			type: 'warning',
+			center: true
+		})
+			.then(() => {
+				scheduleTable.splice(index, 1)
+				window.electronAPI.writeTask(toRaw(scheduleTable))
+				ElMessage({
+					type: 'success',
+					message: '删除成功'
+				})
+			})
+			.catch(() => {
+				ElMessage({
+					type: 'info',
+					message: '已取消删除'
+				})
+			})
+	}
+  //改
+	const editTask=(row)=>{
+		row.edit=true
+	}
+	//保存
+	const saveTask=(index)=>{
 
-	onMounted(()=>{
-	})
+	}
+	//取消
+	const cancelTask=(row)=>{
+		row.edit=false
+	}
+	async function initScheduleTable() {
+		let task = await window.electronAPI.readTask()
+		scheduleTable.push(...task)
+	}
+	initScheduleTable()
 </script>
 
 <style lang="scss" scoped></style>

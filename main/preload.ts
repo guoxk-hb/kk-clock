@@ -1,6 +1,8 @@
-const { contextBridge, ipcRenderer} = require('electron')
-import { readTask } from "./nodeApi"
+const { contextBridge, ipcRenderer } = require('electron')
+import { readTask, writeTask, readRing, writeRing } from "./nodeApi"
 contextBridge.exposeInMainWorld('electronAPI', {
-  readTask: async () => readTask(),
-  writeTask:()=> ipcRenderer.invoke('readTask')
+  readTask: () => readTask(),
+  writeTask: (task) => writeTask(task),
+  readRing: () => readRing(),
+  writeRing: (ring) => writeRing(ring)
 })

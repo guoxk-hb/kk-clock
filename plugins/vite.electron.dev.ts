@@ -37,12 +37,13 @@ export const ElectronDevPlugin = (): Plugin => {
     //用于配置开发服务的钩子
     configureServer(server) {
       buildElectron()
+      let ElectronProcess:ChildProcessWithoutNullStreams
       server.httpServer?.once('listening', () => {
         //读取vite 服务信息，ip、ip协议类型、端口号
         const addressInfo = server.httpServer?.address() as AddressInfo
         const IP = `http://localhost:${addressInfo.port}`
         //第一个参数是electron shell 命令，运行elcetron
-        let ElectronProcess = spawn(require("electron"), ['dist/main/index.js', IP])
+        ElectronProcess = spawn(require("electron"), ['dist/main/index.js', IP])
         fs.watchFile('main/index.ts', () => {
           ElectronProcess.kill()
           buildElectron()
@@ -52,6 +53,11 @@ export const ElectronDevPlugin = (): Plugin => {
         })
         //监听Electron进程的log
         stdoutOn(ElectronProcess)
+      })
+      //关闭服务的时候 杀死electron进程
+      server.httpServer?.once('close', () => {
+        ElectronProcess.kill()
+        console.log("结束了服务")
       })
     }
   }
