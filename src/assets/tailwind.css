@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-html,body{
+/* html,body{
   @apply box-border h-full;
   
-}
+} */
 ::-webkit-scrollbar{
   width: 0;
   height: 0;
@@ -20,8 +20,10 @@ html,body{
 }
 
 .text-shadow {
-  text-shadow: #f87171 1px 0 0,
+  text-shadow:
+    #f87171 1px 0 0,
     #fca5a5 2px 0 0,
+    #fecaca 3px 0 0,
     #f87171 0 1px 0,
     #fca5a5 0 2px 0,
     #fecaca 0 3px 0;
