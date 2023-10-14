@@ -2,10 +2,12 @@ import path from "path"
 
 import { initTaskSchedule } from './schedule'
 
-import { app, ipcMain, BrowserWindow, Tray, Menu } from 'electron'
+import { app, ipcMain, BrowserWindow, Tray, Menu, WebContents, MenuItem } from 'electron'
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
+//用于 闹钟IPCrenderer发送消息
+let notification: WebContents | null = null
 const createWindow = () => {
   const win = new BrowserWindow({
     // width: 300,
@@ -58,41 +60,87 @@ const createWindow = () => {
   } else {
     win.loadFile('index.html')
   }
+  notification = win.webContents
 }
 app.whenReady().then(() => {
-// app.setAppUserModelId(process.execPath)
+  // app.setAppUserModelId(process.execPath)
   createWindow()
-  console.log(createWindow());
-  const tray = new Tray(path.join(__dirname.replace('main', ''), 'logo.png'))
-  console.log(path.join(__dirname.replace('main', ''), 'logo.png'));
-  
-  const contextMenu = Menu.buildFromTemplate([
-    { label: 'Item1', type: 'radio' },
-    { label: 'Item2', type: 'radio' },
-    { label: 'Item3', type: 'radio', checked: true },
-    { label: 'Item4', type: 'radio' }
-  ])
-  tray.setToolTip('clock时钟')
-  tray.setContextMenu(contextMenu)
+  initTaskSchedule(notification)
+  // const tray = new Tray(path.join(__dirname.replace('main', ''), 'logo.png'))
+  // console.log(path.join(__dirname.replace('main', ''), 'logo.png'));
+
+  // // const contextMenu = Menu.buildFromTemplate([
+  // //   { label: 'Item1', type: 'radio' },
+  // //   { label: 'Item2', type: 'radio' },
+  // //   { label: 'Item3', type: 'radio', checked: true },
+  // //   { label: 'Item4', type: 'radio' }
+  // // ])
+  // tray.setToolTip('clock时钟')
+  // tray.setContextMenu(contextMenu)
 })
 //当 Electron 完成初始化时，发出一次。
-app.on('ready', () => {
-  initTaskSchedule()
-})
+// app.on('ready', () => {
+
+// })
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
 
+const menuItemState={
+  menuItem1: true,
+  menuItem2: false,
+  menuItem3: false,
+  menuItem4: false,
+}
 //右键菜单
 ipcMain.on('show-context-menu', (event, arg) => {
-  console.log('给我打开右键菜单');
-  
-  const contextMenu = Menu.buildFromTemplate([
-    { label: '时钟', type: 'checkbox' },
-    { label: '闹钟', type: 'checkbox' },
-    { label: '日期', type: 'checkbox', checked: true },
-    { label: '设置', type: 'checkbox' }
-  ])
+  // console.log('给我打开右键菜单');
+  let template :any[]= [
+    // accelerator 快捷键
+    {
+      id:"1",label: '时钟', type: 'checkbox', checked: menuItemState.menuItem1,commandId:1,
+      click: (e) => {
+        for(let key in menuItemState){
+          menuItemState[key]=false
+        }
+        menuItemState.menuItem1=true,
+        event.sender.send('show-context-command', 'electron')
+      }
+    },
+    {
+      id:"2",label:'闹钟', type: 'checkbox', checked: menuItemState.menuItem2,commandId:2,
+      click(e){
+        for(let key in menuItemState){
+          menuItemState[key]=false
+        }
+        menuItemState.menuItem2=true,
+        event.sender.send('show-context-command', 'notepad')
+      }
+    },
+    {
+      id:"3",label: '日期', type: 'checkbox',checked: menuItemState.menuItem3,commandId:3,
+      click: (e) => {
+        for(let key in menuItemState){
+          menuItemState[key]=false
+        }
+        menuItemState.menuItem3=true,
+        event.sender.send('show-context-command', '日期')
+      }
+    },
+    {
+      id:"4",label: '设置', type: 'checkbox', checked: menuItemState.menuItem4,commandId:4,
+      click: (e) => {
+        for(let key in menuItemState){
+          menuItemState[key]=false
+        }
+        menuItemState.menuItem4=true,
+        event.sender.send('show-context-command', '设置')
+        // handleMenuItemClick()
+      }
+    }
+  ]
+  const contextMenu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(contextMenu)
   // 这里可以指定菜单出现的位置
   contextMenu.popup()
 })

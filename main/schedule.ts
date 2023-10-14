@@ -1,7 +1,5 @@
 import schedule from 'node-schedule'
 
-import { WebContents } from 'electron'
-
 import { readTask } from './nodeApi'
 interface task {
   text: string
@@ -11,7 +9,11 @@ interface task {
   edit: boolean
 }
 // const jobs: schedule = []
-export async function initTaskSchedule() {
+/**
+ * ipcRenderer 把窗口的ipcRenderer给穿过来
+ */
+//初始化读取 task 中的定时任务
+export async function initTaskSchedule(ipcRenderer) {
   const taskList = await readTask()
   // console.log('开启定时任务');
   taskList.forEach((item: task) => {
@@ -26,6 +28,8 @@ export async function initTaskSchedule() {
       dayOfweek: week,
     }, () => {
       // console.log('scheduleCronstyle:' + item.text);
+      ipcRenderer.send('schedule',item)
+      // console.log(ipcRenderer,"ipcrenderer");
       if(week.length===0){
       job.cancel()
       }
@@ -35,6 +39,8 @@ export async function initTaskSchedule() {
     // jobs.push(job)
   })
 }
+
+//创建新任务
 export async function createSchedule(task:task) {
   const dateArr = task.date.split(':')
   const week = task.week
@@ -45,7 +51,7 @@ export async function createSchedule(task:task) {
     minute: minute,
     dayOfweek: week,
   }, () => {
-    console.log('scheduleCronstyle:' + task.text);
+    // console.log('scheduleCronstyle:' + task.text);
     if(week.length===0){
     job.cancel()
     }

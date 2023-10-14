@@ -6,5 +6,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readRing: () => readRing(),
   writeRing: (ring) => writeRing(ring),
   //右键菜单
-  showContextMenu:() => ipcRenderer.send('show-context-menu')
+  showContextMenu:() => ipcRenderer.send('show-context-menu'),
+  //右键菜单触发的回调
+  showContextCommand:(callback) => ipcRenderer.on('show-context-command',(e,command)=>{
+    //切换路由
+    callback(command)
+  }),
+  //定时器 闹钟通知
+  showNotification:(callback)=>ipcRenderer.on('schedule',(el,message)=>{
+    // console.log(el,message,'接受到了scheduleCronstyle');
+    callback(message)
+  })
 })
