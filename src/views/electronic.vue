@@ -1,19 +1,19 @@
 <template>
 	<div class="dragable box-border w-full min-w-full">
 		<div class="box-border px-[8vw] py-[4vw]  border-soild rounded-md border-1 border-gray-300 bg-violet-200 shadow-lg">
-			<div class="flex justify-between">
+			<div class="flex justify-between text-center text-shadow text-[20vw] text-white">
 				<template v-for="(item, index) in Object.values(time)" :key="index">
-					<div class="box-border flex-3 text-center" v-if="index > 3">
-						<span class="align-text-top text-shadow text-[20vw] text-white font-sans">{{
+					<div class="box-border flex-3" v-if="index > 3">
+						<span class=" align-middle">{{
 							item
 						}}</span>
 					</div>
-					<div v-if="6 > index && index > 3" class="box-border flex-1 text-center">
-						<span class="align-top text-shadow text-[20vw] text-white font-sans">:</span>
+					<div v-if="6 > index && index > 3" class="box-border flex-1 ">
+						<span class="">:</span>
 					</div>
 				</template>
 			</div>
-			<div class="text-center text-[4vw]">
+			<div class=" px-[5vw] text-left text-[4vw]">
 				<span>{{ time.month }}月{{ time.date }}日</span>
 				<span class="p-[3vw]">星期六</span>
 				<span>傍晚</span>

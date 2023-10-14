@@ -5,7 +5,7 @@ import '@/assets/tailwind.css'
 
 import 'default-passive-events'
 
-import App from '@/views/menu.vue'
+import App from '@/App.vue'
 import router from './router'
 const app = createApp(App)
 

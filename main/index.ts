@@ -1,23 +1,20 @@
 import path from "path"
 
-import { taskSchedule } from './schedule'
-import schedule from 'node-schedule'
+import { initTaskSchedule } from './schedule'
 
-import { app, BrowserWindow } from 'electron'
+import { app, ipcMain, BrowserWindow, Tray, Menu } from 'electron'
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 const createWindow = () => {
   const win = new BrowserWindow({
-    // width: 200,
-    // height: 200,
-    // width:250,
-    // height:125,
-    width: 2000,
-    height: 800,
+    // width: 300,
+    // height: 300,
+    // width: 2000,
+    // height: 800,
     // transparent: true ,
     // frame: false ,
-    title:"时钟",
+    title: "时钟",
     alwaysOnTop: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -32,12 +29,10 @@ const createWindow = () => {
     // console.log(url);
     return {
       action: 'allow',
-
       //主窗口关闭与子窗口关闭独立
-      outlivesOpener:true,
-
+      outlivesOpener: true,
       overrideBrowserWindowOptions: {
-        transparent: true ,
+        transparent: true,
         frame: false,
         // fullscreenable: false,
         // backgroundColor: 'black',
@@ -46,6 +41,18 @@ const createWindow = () => {
       }
     }
   })
+
+  win.webContents.on("dom-ready", async () => {
+    // let height = await win.webContents.executeJavaScript('document.body.clientHeight')
+    // let width = await win.webContents.executeJavaScript('document.body.clientWidth')
+    // console.log(height,'height');
+    // win.setSize(width,height)
+  })
+  win.on("resize", async () => {
+    // let height = await win.webContents.executeJavaScript('document.documentElement.clientHeight')
+    // let width = await win.webContents.executeJavaScript('document.documentElement.clientWidth')
+    // win.setSize(width,height)
+  })
   if (process.argv[2]) {
     win.loadURL(process.argv[2])
   } else {
@@ -53,15 +60,39 @@ const createWindow = () => {
   }
 }
 app.whenReady().then(() => {
+// app.setAppUserModelId(process.execPath)
   createWindow()
+  console.log(createWindow());
+  const tray = new Tray(path.join(__dirname.replace('main', ''), 'logo.png'))
+  console.log(path.join(__dirname.replace('main', ''), 'logo.png'));
+  
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Item1', type: 'radio' },
+    { label: 'Item2', type: 'radio' },
+    { label: 'Item3', type: 'radio', checked: true },
+    { label: 'Item4', type: 'radio' }
+  ])
+  tray.setToolTip('clock时钟')
+  tray.setContextMenu(contextMenu)
 })
-
 //当 Electron 完成初始化时，发出一次。
 app.on('ready', () => {
-  taskSchedule()
+  initTaskSchedule()
 })
-
-
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
+})
+
+//右键菜单
+ipcMain.on('show-context-menu', (event, arg) => {
+  console.log('给我打开右键菜单');
+  
+  const contextMenu = Menu.buildFromTemplate([
+    { label: '时钟', type: 'checkbox' },
+    { label: '闹钟', type: 'checkbox' },
+    { label: '日期', type: 'checkbox', checked: true },
+    { label: '设置', type: 'checkbox' }
+  ])
+  // 这里可以指定菜单出现的位置
+  contextMenu.popup()
 })
