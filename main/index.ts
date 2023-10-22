@@ -66,6 +66,16 @@ const createWindow = () => {
     }
   })
 
+  //windows窗口事件的二进制码 
+  //当electron 改为透明时，右击不会触发浏览器的右击 而是windows的右击
+  //需要给他禁用一下
+  win.hookWindowMessage(278,function(e){
+    win.setEnabled(false);//窗口禁用
+    setTimeout(()=>{
+      win.setEnabled(true);//窗口启用
+    },100);
+    return true;
+  })
   // win.webContents.on("dom-ready", async () => {
   //   // let height = await win.webContents.executeJavaScript('document.body.clientHeight')
   //   // let width = await win.webContents.executeJavaScript('document.body.clientWidth')
@@ -126,7 +136,7 @@ const menuItemState = {
 }
 //右键菜单
 ipcMain.on('show-context-menu', (event, arg) => {
-  // console.log('给我打开右键菜单');
+  console.log('给我打开右键菜单');
   const template: any[] = [
     // accelerator 快捷键
     {

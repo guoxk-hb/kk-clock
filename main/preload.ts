@@ -17,5 +17,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   showNotification:(callback)=>ipcRenderer.on('schedule',(el,message)=>{
     // console.log(el,message,'接受到了scheduleCronstyle');
     callback(message)
-  })
+  }),
 })

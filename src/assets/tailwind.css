@@ -13,6 +13,7 @@
 
 .dragable {
   -webkit-app-region: drag;
+  -webkit-user-select: none;
 }
 
 .undragable,.el-popper {

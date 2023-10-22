@@ -1,28 +1,39 @@
 <template>
-	<div class="dragable box-border w-full min-w-full">
-		<div class="box-border px-[8vw] py-[4vw]  border-soild rounded-md border-1 border-gray-300 bg-violet-200 shadow-lg">
-			<div class="flex justify-between text-center text-shadow text-[20vw] text-white">
+	<div class=" box-border w-full min-w-full">
+		<div class="box-border py-[4vw]  border-soild rounded-md border-1 border-gray-300  shadow-lg">
+			<!-- bg-violet-200 -->
+			<div class=" px-[8vw] flex justify-between text-center text-shadow text-[20vw] text-white">
 				<template v-for="(item, index) in Object.values(time)" :key="index">
-					<div class="box-border flex-3" v-if="index > 3">
-						<span class=" align-middle">{{
+					<div class="unselect  box-border flex-3" v-if="index > 3">
+						<span class="dragable align-middle">{{
 							item
 						}}</span>
 					</div>
 					<div v-if="6 > index && index > 3" class="box-border flex-1 ">
-						<span class="">:</span>
+						<span class="dragable">:</span>
 					</div>
 				</template>
 			</div>
-			<div class=" px-[5vw] text-left text-[4vw]">
-				<span>{{ time.month }}月{{ time.date }}日</span>
-				<span class="p-[3vw]">星期六</span>
-				<span>傍晚</span>
+			<div class="unselect px-[5vw] py-[3vw] flex text-left text-[4vw] rounded-md bg-violet-200/[.4] ">
+				<!-- bg-violet-200/[.4] -->
+				<div style="text-orientation: upright;writing-mode: vertical-rl; letter-spacing: 3vw;" class="dragable px-[2vw] py-[3vw] rounded-[4vw] bg-violet-200/[.4]">
+					<span>星期{{ WEEK[Number(time.day)] }}</span>
+				</div>
+				<div class="dragable">
+					<span>{{ time.year }}年 {{ time.month }}月{{ time.date }}日</span>
+					<br>
+					<span>{{ lunar }}</span>
+					<br>
+				</div>
+				<!-- writing-mode: vertical-rl; -->
+<!-- text-orientation: upright; -->
+				<span>{{ timeFrame }}</span>
 			</div>
 		</div>
 		<el-scrollbar ref="taskText" native
-			class="box-border my-2 px-3 py-[1vw] border-soild rounded-md border-1 border-gray-300 bg-violet-200 shadow-lg">
-			<div class="scroll-text">
-				<span class="whitespace-nowrap text-[5vw]">代办事项:周六晚7点要塞 7点要塞 7点要塞 7点要塞 7点要塞
+			class="box-border my-2 px-3 py-[1vw] border-soild rounded-md border-1 border-gray-300 bg-violet-200/[0.4] shadow-lg ">
+			<div class="dragable scroll-text">
+				<span class="unselect whitespace-nowrap text-[5vw]">代办事项:周六晚7点要塞 7点要塞 7点要塞 7点要塞 7点要塞
 				</span>
 			</div>
 		</el-scrollbar>
@@ -44,8 +55,9 @@
 </template>
 
 <script setup lang="ts">
-import { formateTime } from '@/common/common'
-import { onMounted, reactive ,onUnmounted} from 'vue'
+import { formateTime, toCnDate } from '@/common/common'
+import { WEEK, timeFrameOptions } from '@/common/dict'
+import { reactive, ref, computed, onMounted, onUnmounted } from 'vue'
 interface Time {
 	year: number
 	month: string
@@ -74,18 +86,24 @@ const setTimer = () => {
 			(time.hours = formateTime(new Date().getHours())),
 			(time.minutes = formateTime(new Date().getMinutes())),
 			(time.seconds = formateTime(new Date().getSeconds()))
+		// lunar.value=toCnDate(new Date())
 	}, 1000)
 }
 const clearTimer = () => {
 	clearInterval(timer.value)
 }
-
 const taskText = ref(null)
 
+let timeFrame = computed(() => {
+	let timeFrame = timeFrameOptions.find((item) => item.value[0] <= Number(time.hours) && item.value[1] > Number(time.hours))
+	return timeFrame.label
+})
+
+let lunar = ref<string>(toCnDate(new Date()))
 onMounted(() => {
 	setTimer()
 })
-onUnmounted(()=>{
+onUnmounted(() => {
 	clearTimer()
 })
 </script>
@@ -98,6 +116,7 @@ onUnmounted(()=>{
 .scroll-text:hover {
 	animation: none;
 }
+
 @keyframes scrollText {
 	from {
 		transform: translateX(0);
