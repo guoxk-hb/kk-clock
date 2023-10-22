@@ -1,8 +1,18 @@
 
 import schedule from 'node-schedule'
 
-import { readTask } from './nodeApi'
+import { readTask, writeTask } from './nodeApi'
 import { Notification } from 'electron'
+
+import path from 'path'
+
+const logo = path.join(__dirname.replace('main', ''), 'logo.png')
+const img = path.join(__dirname.replace('main', ''), 'R.jpg')
+// const audio = path.join(__dirname.replace('main', ''), 'pikaqiu.mp3')
+// const notification= new Notification({
+//   toastXml,
+// });
+
 interface task {
   id: number,
   text: string
@@ -18,9 +28,9 @@ const jobs = {}
 //初始化读取 task 中的定时任务
 export async function initTaskSchedule(webContents) {
   let taskList
-  try{
+  try {
     taskList = await readTask()
-  }catch{
+  } catch {
     console.log('读取任务失败');
   }
   // console.log('开启定时任务');
@@ -38,17 +48,13 @@ export async function initTaskSchedule(webContents) {
         minute: minute,
         dayOfweek: week,
       }, () => {
-       new Notification({
-        title: "闹钟",
-        body: item.text,
-        silent: false,
-        // icon: '/logo.png',
-       }).show()
-        // console.log('scheduleCronstyle:' + item.text);
-        webContents.send('schedule', item)
-        // console.log(ipcRenderer,"ipcrenderer");
+        // webContents.send('schedule', item)
+        console.log('scheduleCronstyle:' + item.text);
+        showNotification(item)
         if (week.length === 0) {
           job.cancel()
+          taskList[item.id].switch = false
+          writeTask(taskList)
         }
       });
       jobs[item.id] = job
@@ -64,7 +70,9 @@ export async function createSchedule(task: task, webContents) {
   const hour = Number(dateArr[0])
   const minute = Number(dateArr[1])
   console.log(jobs);
-  
+  if (task.switch === false) {
+    return 0
+  }
   if (jobs[task.id]) {
     jobs[task.id].cancel()
   }
@@ -72,13 +80,55 @@ export async function createSchedule(task: task, webContents) {
     hour: hour,
     minute: minute,
     dayOfweek: week,
-  }, () => {
+  }, async () => {
     console.log('scheduleCronstyle:' + task.text);
-    webContents.send('schedule', task)
+    showNotification(task)
+    // webContents.send('schedule', task)
     if (week.length === 0) {
       job.cancel()
+      try {
+        let taskList = await readTask()
+        taskList[task.id].switch = false
+        writeTask(taskList)
+      } catch {
+        console.log('读取任务失败');
+      }
     }
   });
   jobs[task.id] = job
   console.log('开启定时任务' + task.text);
+}
+
+function showNotification(task: task) {
+const toastXml = `
+<toast launch="https://www.electronjs.org" activationType="protocol">
+  <visual>
+      <binding template="ToastGeneric">
+          <text hint-callScenarioCenterAlign="true">到时间了！！！</text>
+          <text>${task.date}:${task.text}</text>
+          <image placement="appLogoOverride" src="${logo}"/>
+          <image placement="hero" src="${img}"/>
+      </binding>
+  </visual>
+  <actions>
+    <input id="extendTime" type="selection" defaultInput="1">
+    <selection id="1" content="1 分钟"/>
+    <selection id="15" content="15 分钟"/>
+    <selection id="60" content="1 小时"/>
+    <selection id="240" content="4 小时"/>
+    <selection id="1440" content="1 天"/>
+    </input>
+    <action
+      activationType="system"
+      arguments="snooze"
+      hint-inputId="snoozeTime"
+      content=""/>
+    <action
+      activationType="system"
+      arguments="dismiss"
+      content=""/>
+  </actions>
+</toast>`;
+  const notification = new Notification({ toastXml });
+  notification.show();
 }
