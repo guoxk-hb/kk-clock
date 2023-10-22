@@ -48,9 +48,9 @@ export const ElectronBuildPlugin=():Plugin=>{
           oneClick:false,//取消一键安装
           allowToChangeInstallationDirectory:true,//可以安装到其他磁盘，默认C盘
         },
-        files: [
-          "public/**/*" // 指定静态资源文件夹的路径
-        ],
+        win:{
+        icon:'public/logo.png',
+        }
       }
     })
   }
