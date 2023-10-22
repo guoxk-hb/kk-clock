@@ -19,6 +19,10 @@
   -webkit-app-region: no-drag;
 }
 
+.unselect{
+  user-select: none;
+}
+
 .text-shadow {
   text-shadow:
     #f87171 1px 0 0,
