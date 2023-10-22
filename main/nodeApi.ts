@@ -1,6 +1,7 @@
 import fs from "fs"
 import path from 'path'
 interface task{
+  id:number,
   text: string
   week: Array<number>
   date: string
