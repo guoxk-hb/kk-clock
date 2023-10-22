@@ -3,6 +3,7 @@ import { readTask, writeTask, readRing, writeRing } from "./nodeApi"
 contextBridge.exposeInMainWorld('electronAPI', {
   readTask: () => readTask(),
   writeTask: (task) => writeTask(task),
+  createSchedule:(item)=>ipcRenderer.send('create-schedule',item),
   readRing: () => readRing(),
   writeRing: (ring) => writeRing(ring),
   //右键菜单
