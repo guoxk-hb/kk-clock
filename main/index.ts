@@ -10,15 +10,18 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 let notification: WebContents | null = null
 const createWindow = () => {
   const win = new BrowserWindow({
-    // width: 300,
-    // height: 300,
+    width: 300,
+    height: 200,
+    minWidth: 200,
+    minHeight: 160,
+    maxWidth: 400,
+    maxHeight: 320,
     // width: 2000,
     // height: 800,
     transparent: true ,
     frame: false ,
     title: "时钟",
     alwaysOnTop: true,
-    useContentSize: true,
     autoHideMenuBar: true,
     hasShadow: true,
     icon: path.join(__dirname.replace('main', ''), 'logo.png'),
@@ -28,10 +31,14 @@ const createWindow = () => {
       // contextIsolation: false, //隔离沙箱，防止恶意注入木马
       webSecurity: false,//关闭同源策略
       contextIsolation: true,
+      sandbox: false,
     },
   })
-  win.setMenu(null);
+  //控制台
   // win.webContents.openDevTools();
+  //等比缩放
+  win.setAspectRatio(1.36)
+  win.setMenu(null);
   win.webContents.setWindowOpenHandler(({ url }) => {
     // console.log(url);
     if (url === 'http://localhost:5173/notepad') {
@@ -65,28 +72,33 @@ const createWindow = () => {
       }
     }
   })
-
+  win.webContents.on('context-menu', (e, params) => {
+    // const menu = new Menu()
+    // menu.popup()
+    console.log('右键了',e);
+    
+    // // 取消右键菜单事件
+    // e.preventDefault();
+  });
   //windows窗口事件的二进制码 
   //当electron 改为透明时，右击不会触发浏览器的右击 而是windows的右击
   //需要给他禁用一下
-  win.hookWindowMessage(278,function(e){
-    win.setEnabled(false);//窗口禁用
-    setTimeout(()=>{
-      win.setEnabled(true);//窗口启用
-    },100);
-    return true;
-  })
+  // win.hookWindowMessage(278,function(e){
+  //   win.setEnabled(false);//窗口禁用
+  //   setTimeout(()=>{
+  //     win.setEnabled(true);//窗口启用
+  //   },100);
+  //   return true;
+  // })
   // win.webContents.on("dom-ready", async () => {
-  //   // let height = await win.webContents.executeJavaScript('document.body.clientHeight')
-  //   // let width = await win.webContents.executeJavaScript('document.body.clientWidth')
-  //   // console.log(height,'height');
-  //   // win.setSize(width,height)
+    // const height = await win.webContents.executeJavaScript('document.body.clientHeight')
+    // const width = await win.webContents.executeJavaScript('document.body.clientWidth')
+    // console.log(height,width);
+    // win.setSize(width,height)
   // })
-  // win.on("resize", async () => {
-  //   // let height = await win.webContents.executeJavaScript('document.documentElement.clientHeight')
-  //   // let width = await win.webContents.executeJavaScript('document.documentElement.clientWidth')
-  //   // win.setSize(width,height)
-  // })
+  win.on("resized", async () => {
+    win.webContents.send("resized")
+  })
   if (process.argv[2]) {
     win.loadURL(process.argv[2])
   } else {
@@ -118,6 +130,8 @@ app.whenReady().then(() => {
   app.setAppUserModelId(process.execPath)
   createWindow()
   initTaskSchedule(notification)
+  /*获取electron窗体的菜单栏*/
+Menu.setApplicationMenu(null)
 })
 //当 Electron 完成初始化时，发出一次。
 // app.on('ready', () => {

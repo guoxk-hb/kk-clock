@@ -18,4 +18,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // console.log(el,message,'接受到了scheduleCronstyle');
     callback(message)
   }),
-})
+  //拉伸应用
+  frameResized:(callback)=>ipcRenderer.on('resized',(e,message)=>{ 
+    callback()
+  })
+  })
