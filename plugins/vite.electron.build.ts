@@ -47,6 +47,9 @@ export const ElectronBuildPlugin=():Plugin=>{
         nsis:{
           oneClick:false,//取消一键安装
           allowToChangeInstallationDirectory:true,//可以安装到其他磁盘，默认C盘
+        },
+        win:{
+        icon:'public/logo.png',
         }
       }
     })
