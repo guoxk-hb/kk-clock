@@ -26,7 +26,7 @@ const jobs = {}
  * WebContents 把窗口的WebContents给穿过来
  */
 //初始化读取 task 中的定时任务
-export async function initTaskSchedule(webContents) {
+export async function initTaskSchedule() {
   let taskList
   try {
     taskList = await readTask()
@@ -64,7 +64,7 @@ export async function initTaskSchedule(webContents) {
 }
 
 //创建新任务
-export async function createSchedule(task: task, webContents) {
+export async function createSchedule(task: task) {
   const dateArr = task.date.split(':')
   const week = task.week
   const hour = Number(dateArr[0])

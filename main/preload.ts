@@ -6,8 +6,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createSchedule:(item)=>ipcRenderer.send('create-schedule',item),
   readRing: () => readRing(),
   writeRing: (ring) => writeRing(ring),
-  //右键菜单
-  showContextMenu:() => ipcRenderer.send('show-context-menu'),
+  // //右键菜单 更新了新的方式，使用electron方式
+  // showContextMenu:() => ipcRenderer.send('show-context-menu'),
   //右键菜单触发的回调
   showContextCommand:(callback) => ipcRenderer.on('show-context-command',(e,command)=>{
     //切换路由
@@ -21,5 +21,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   //拉伸应用
   frameResized:(callback)=>ipcRenderer.on('resized',(e,message)=>{ 
     callback()
-  })
+  }),
+  windowMove:(boolean:boolean)=>ipcRenderer.send('window-move-open',boolean)
   })

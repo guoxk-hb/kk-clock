@@ -17,6 +17,12 @@ const router = createRouter({
       name: 'notepad',
       component: () => import('@/views/notepad.vue'),
       props:{default:true,sidebar:false}
+    },
+    {
+      path: '/setting',
+      name: 'setting',
+      component: () => import('@/views/setting.vue'),
+      props:{default:true,sidebar:false}
     }
   ]
 })

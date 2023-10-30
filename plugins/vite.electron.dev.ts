@@ -11,9 +11,9 @@ import fs from 'node:fs'
 
 const buildElectron = () => {
   require("esbuild").buildSync({
-    entryPoints: ['main/index.ts','main/preload.ts','main/nodeApi.ts'],
+    entryPoints: ['main/index.ts', 'main/preload.ts', 'main/nodeApi.ts', 'main/schedule.ts', 'main/windowSetting.ts'],
     bundle: true,
-    outdir:'dist/main',
+    outdir: 'dist/main',
     platform: 'node',
     target: 'node18',
     external: ['electron']
@@ -37,19 +37,28 @@ export const ElectronDevPlugin = (): Plugin => {
     //用于配置开发服务的钩子
     configureServer(server) {
       buildElectron()
-      let ElectronProcess:ChildProcessWithoutNullStreams
+      let ElectronProcess: ChildProcessWithoutNullStreams
       server.httpServer?.once('listening', () => {
         //读取vite 服务信息，ip、ip协议类型、端口号
         const addressInfo = server.httpServer?.address() as AddressInfo
         const IP = `http://localhost:${addressInfo.port}`
         //第一个参数是electron shell 命令，运行elcetron
         ElectronProcess = spawn(require("electron"), ['dist/main/index.js', IP])
-        fs.watchFile('main/index.ts', () => {
-          ElectronProcess.kill()
-          buildElectron()
-          stdoutOff(ElectronProcess)
-          ElectronProcess = spawn(require("electron"), ['dist/main/index.js', IP])
-          stdoutOn(ElectronProcess)
+        fs.readdir('main', (err, files) => {
+          if (err) {
+            console.error(`Error reading directory: ${err}`);
+            return;
+          }
+          files.forEach(file => {
+            fs.watchFile(`main/${file}`, () => {
+              ElectronProcess.kill()
+              buildElectron()
+              stdoutOff(ElectronProcess)
+              //electorn 启动命令
+              ElectronProcess = spawn(require("electron"), ['dist/main/index.js', IP])
+              stdoutOn(ElectronProcess)
+            })
+          });
         })
         //监听Electron进程的log
         stdoutOn(ElectronProcess)
