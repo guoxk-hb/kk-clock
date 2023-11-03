@@ -1,11 +1,13 @@
 const { contextBridge,ipcRenderer} = require('electron')
-import { readTask, writeTask, readRing, writeRing } from "./nodeApi"
+import { readTask, writeTask, readRing, writeRing, readSetting,writeSetting} from "./nodeApi"
 contextBridge.exposeInMainWorld('electronAPI', {
   readTask: () => readTask(),
   writeTask: (task) => writeTask(task),
-  createSchedule:(item)=>ipcRenderer.send('create-schedule',item),
+  readSetting:()=>readSetting(),
+  writeSetting:(setting)=>writeSetting(setting),
   readRing: () => readRing(),
   writeRing: (ring) => writeRing(ring),
+  createSchedule:(item)=>ipcRenderer.send('create-schedule',item),
   // //右键菜单 更新了新的方式，使用electron方式
   // showContextMenu:() => ipcRenderer.send('show-context-menu'),
   //右键菜单触发的回调

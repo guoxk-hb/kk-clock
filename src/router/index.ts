@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import electronic from '@/views/electronic.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -10,19 +9,17 @@ const router = createRouter({
     {
       path: '/electron',
       name: 'electron',
-      component:() => import('@/views/electronic.vue'),
+      component:() => import('@/views/clock/electronic.vue'),
     },
     {
       path: '/notepad',
       name: 'notepad',
       component: () => import('@/views/notepad.vue'),
-      props:{default:true,sidebar:false}
     },
     {
       path: '/setting',
       name: 'setting',
       component: () => import('@/views/setting.vue'),
-      props:{default:true,sidebar:false}
     }
   ]
 })

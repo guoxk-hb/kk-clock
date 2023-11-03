@@ -68,7 +68,7 @@
 import { formateTime, toCnDate, formateTimestamp } from '@/common/common'
 import { WEEK, timeFrameOptions } from '@/common/dict'
 import { reactive, ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-
+import {getWeatherInfo } from '@/api/common'
 //时间相关信息类型定义
 interface Time {
   year: number
@@ -170,7 +170,7 @@ function findRecentTask(task: Array<task>) {
   let recentTask: recentTask|undefined
   for (let i = 0; i < task.length; i++) {
     if (task[i].switch === true && (task[i].week.includes(time.day) || task[i].week.length === 0)) {
-      recentTask=Object.assign(task[i],{week:day})
+      recentTask=Object.assign(task[i],{week:time.day})
       break
     }
   }
@@ -212,6 +212,26 @@ async function readTask() {
   handleScrollAnimation()
 }
 readTask()
+
+interface SettingForm{
+  ringVal: Array<number>,
+  ringName: string,
+  ringFileUrl: string,
+  clockStyle: number, // 1 电子 2 古典 3 粒子
+  quit:number // 1 最小化 2 退出
+  bootstrap:boolean //开机自启
+  country: string,
+  province: string,
+  city: string,
+  county: string,
+}
+//读取 setting
+async function readSetting(){
+   let res:SettingForm =await window.electronAPI.readSetting()
+   let weatherInfo = await getWeatherInfo({city:res.county})
+   console.log(weatherInfo,'weatherInfo');
+}
+readSetting()
 onMounted(() => {
   setTimer()
 })

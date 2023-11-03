@@ -1,5 +1,5 @@
 <template>
-  <div @mouseenter="mouseenter" @mouseleave="mouseleave" @mousedown="mousedown" @mouseup="mouseup" >
+  <div @mouseenter ="mouseenter" @mouseleave="mouseleave" @mousedown="mousedown" @mouseup="mouseup" >
     <slot></slot>
   </div>
 </template>
@@ -29,8 +29,12 @@ function mouseleave() {
   }
 }
 
-function mousedown(e: MouseEvent) {
+function mousedown(e:MouseEvent) {
   // alert('点击了')
+  const target = e.target as HTMLElement;
+  if(target.className.includes('el-slider')){
+    return
+  }
   if (enterFlag) {
     window.electronAPI.windowMove(true);
     mousedownFlag = true;

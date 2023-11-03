@@ -22,23 +22,23 @@ interface windowOptions {
 
 export const electronicOptions: windowOptions = {
   id:'electronic',
-  // width: 900,
-  // height: 400,
-  // minWidth: 600,
-  // minHeight: 400,
-  // maxWidth: Infinity,
-  // maxHeight: Infinity,
-  width: 400,
-  height: 320,
-  minWidth: 200,
-  minHeight: 160,
-  maxWidth: 400,
-  maxHeight: 320,
+  width: 900,
+  height: 400,
+  minWidth: 600,
+  minHeight: 400,
+  maxWidth: Infinity,
+  maxHeight: Infinity,
+  // width: 400,
+  // height: 320,
+  // minWidth: 200,
+  // minHeight: 160,
+  // maxWidth: 400,
+  // maxHeight: 320,
   transparent: true,
   frame: false,
   title: "时钟",
   alwaysOnTop: true,
-  // devTool: true,
+  devTool: true,
   aspectRatioSwtich: true,
   aspectRatio: 1.36,
 }
@@ -64,7 +64,8 @@ const settingOptions: windowOptions = {
   maxWidth: Infinity,
   maxHeight: Infinity,
   title: "时钟设置",
-  url: '/setting'
+  url: '/setting',
+  devTool:true,
 }
 //记录创建的窗口
 const BrowserWindowsMap =new Map<string, BrowserWindow>()
