@@ -1,4 +1,5 @@
 import request from '@/common/request'
+import { AxiosResponse } from 'axios'
 
 //高德接口
 let gaodeBaseUrl = 'https://restapi.amap.com/v3'
@@ -14,14 +15,33 @@ export function getDistrictInfo(params) {
     timeout: 30000,// 30s
   })
 }
-
-export function getWeatherInfo(params) {
+interface WeatherInfo {
+  count: string,
+  info: string,
+  infocode: string,
+  lives: Array<Live>,
+  status: string,
+}
+interface Live {
+  adcode: string,
+  city: string,
+  humidity: string,
+  humidity_float: string,
+  province: string,
+  reporttime: string,
+  temperature: string,
+  temperature_float: string,
+  weather: string,
+  winddirection: string,
+  windpower: string,
+}
+export function getWeatherInfo(params):Promise<AxiosResponse<WeatherInfo, any>> {
   let key = 'd4dd431d99386d63590abc59b4d5ab9c'
   let output = 'JSON'
   let extensions = 'base'
   //ctiy 参数为adcode码
   //天气查询接口https://lbs.amap.com/api/webservice/guide/api/weatherinfo
-  request.get(`/weather/weatherInfo?key=${key}&city=${params.city}&extensions=${extensions}&output=${output}`, {
+  return request.get(`/weather/weatherInfo?key=${key}&city=${params.city}&extensions=${extensions}&output=${output}`, {
     baseURL: gaodeBaseUrl,//高德API
     timeout: 10000,// 10s
   })

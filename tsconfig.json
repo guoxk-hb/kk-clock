@@ -15,6 +15,7 @@
       "@/*":["src/*"]
     },
     "moduleResolution": "Node",
+    "module": "ESNext"
   },
   "include": [
     "src/**/*.vue",

@@ -16,7 +16,8 @@
           <span class=" px-[0.5vw] py-[1vw] bg-red-500 rounded-[1vw]">{{ timeFrame }}</span>
         </div>
       </div>
-      <div class=" px-[5vw] py-[3vw] flex justify-around text-left text-[4vw] rounded-md bg-violet-200/[.4]">
+      <div
+        class="px-[5vw] py-[3vw] text-left leading-[7vw] text-[4vw]  flex justify-around rounded-md bg-violet-200/[.4]">
         <!-- bg-violet-200/[.4] -->
         <div style="letter-spacing: 0.5vw" class="">
           <div class="py-[1vw]">
@@ -25,10 +26,42 @@
           <div class="py-[1vw]">
             <span class="">{{ lunar }}</span>
           </div>
+
         </div>
-        <div style="letter-spacing: 1vw" class=" px-[4vw] py-[2vw]">
-          <span class="">星期{{ WEEK[Number(time.day)] }}</span>
+        <div class="px-[4vw] text-[6vw]">
+          <div style="letter-spacing: 1vw" class="text-[5vw]">
+            <el-image class="w-[8vw] align-bottom" :src="locationPng" fit="fill" :lazy="true"></el-image>
+            <span class="px-[1vw]">{{ weatherInfo?.province }}</span>
+            <span>{{ weatherInfo?.city }}</span>
+          </div>
+          <div style="letter-spacing: 1vw">
+            <el-tooltip :content="`天气：${weatherInfo?.weather}，温度：${weatherInfo?.temperature}&#8451;`" placement="top"
+              effect="light">
+              <div>
+                <el-image class="w-[10vw] align-bottom mb-[-0.5vw]" :src="weatherIcon" fit="fill" :lazy="true"></el-image>
+                <span class="px-[2vw]">{{ weatherInfo?.temperature }}&#8451;</span>
+                <span class="py-[1vw] text-[5vw]">星期{{ WEEK[Number(time.day)] }}</span>
+              </div>
+            </el-tooltip>
+          </div>
+          <div class="w-[40vw] m-auto flex justify-between">
+            <el-tooltip content="空气湿度" placement="top" effect="light">
+              <div>
+                <el-image class="w-[10vw]  align-bottom" :src="humidityPng" :lazy="true"></el-image>
+                <span>{{ weatherInfo?.humidity }}</span>
+              </div>
+            </el-tooltip>
+            <el-tooltip :content="`${weatherInfo?.winddirection}风${weatherInfo?.windpower}级`" placement="top"
+              effect="light">
+              <div>
+                <el-image class="w-[10vw] p-[1.2vw]  align-bottom" :src="windpowerPng" :lazy="true"></el-image>
+                <span>{{ weatherInfo?.windpower }}</span>
+              </div>
+            </el-tooltip>
+          </div>
+
         </div>
+
         <!-- writing-mode: vertical-rl; -->
         <!-- text-orientation: upright; -->
       </div>
@@ -66,9 +99,12 @@
 
 <script setup lang="ts">
 import { formateTime, toCnDate, formateTimestamp } from '@/common/common'
-import { WEEK, timeFrameOptions } from '@/common/dict'
+import { WEEK, WEATHER, timeFrameOptions } from '@/common/dict'
 import { reactive, ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import {getWeatherInfo } from '@/api/common'
+import { getWeatherInfo } from '@/api/common'
+import humidityPng from '@/assets/humidity.png'
+import windpowerPng from '@/assets/windpower.png'
+import locationPng from '@/assets/location.png'
 //时间相关信息类型定义
 interface Time {
   year: number
@@ -151,7 +187,7 @@ window.electronAPI.frameResized(() => {
   }
 })
 //task 类型
-interface task {
+interface Task {
   id: number
   text: string
   week: Array<number>
@@ -160,17 +196,17 @@ interface task {
   edit: boolean
 }
 //最近事件类型 定义
-interface recentTask extends Partial<Pick<task, 'id' | 'date' | 'edit' | 'switch'>> {
+interface RecentTask extends Partial<Pick<Task, 'id' | 'date' | 'edit' | 'switch'>> {
   text: string
   week?: number
 }
 //计算最近的定时闹钟
-function findRecentTask(task: Array<task>) {
+function findRecentTask(task: Array<Task>) {
   task = task.sort((a, b) => formateTimestamp(a.date) - formateTimestamp(b.date))
-  let recentTask: recentTask|undefined
+  let recentTask: RecentTask | undefined
   for (let i = 0; i < task.length; i++) {
     if (task[i].switch === true && (task[i].week.includes(time.day) || task[i].week.length === 0)) {
-      recentTask=Object.assign(task[i],{week:time.day})
+      recentTask = Object.assign(task[i], { week: time.day })
       break
     }
   }
@@ -182,11 +218,11 @@ function findRecentTask(task: Array<task>) {
 
 }
 //如果当天没有则 找接下来最近的一个闹钟
-function findNotTodayRecentTask(task: Array<task>, day: number) {
-  let recentTask: recentTask|undefined
+function findNotTodayRecentTask(task: Array<Task>, day: number) {
+  let recentTask: RecentTask | undefined
   for (let i = 0; i < task.length; i++) {
     if (task[i].switch === true && task[i].week.includes(day)) {
-      recentTask=Object.assign(task[i],{week:day})
+      recentTask = Object.assign(task[i], { week: day })
       console.log(recentTask)
       break
     }
@@ -204,7 +240,7 @@ function findNotTodayRecentTask(task: Array<task>, day: number) {
     return findNotTodayRecentTask(task, day + 1)
   }
 }
-const recentTask = ref<recentTask | null>(null)
+const recentTask = ref<RecentTask | null>(null)
 async function readTask() {
   let task = await window.electronAPI.readTask()
   recentTask.value = findRecentTask(task);
@@ -213,24 +249,45 @@ async function readTask() {
 }
 readTask()
 
-interface SettingForm{
+interface SettingForm {
   ringVal: Array<number>,
   ringName: string,
   ringFileUrl: string,
   clockStyle: number, // 1 电子 2 古典 3 粒子
-  quit:number // 1 最小化 2 退出
-  bootstrap:boolean //开机自启
+  quit: number // 1 最小化 2 退出
+  bootstrap: boolean //开机自启
   country: string,
   province: string,
   city: string,
   county: string,
 }
-//读取 setting
-async function readSetting(){
-   let res:SettingForm =await window.electronAPI.readSetting()
-   let weatherInfo = await getWeatherInfo({city:res.county})
-   console.log(weatherInfo,'weatherInfo');
+
+interface Live {
+  adcode: string,
+  city: string,
+  humidity: string,
+  humidity_float: string,
+  province: string,
+  reporttime: string,
+  temperature: string,
+  temperature_float: string,
+  weather: string,
+  winddirection: string,
+  windpower: string,
 }
+let weatherInfo = ref<Live>(null)
+let weather = 'cloudy'
+let weatherIcon = ref(`/src/assets/icon_weather/${weather}.png`)
+//读取 setting
+async function readSetting() {
+  let settingRes: SettingForm = await window.electronAPI.readSetting()
+  let weatherInfoRes = await getWeatherInfo({ city: settingRes.county })
+  if (weatherInfoRes.data.status === '1') {
+    weatherInfo.value = weatherInfoRes.data.lives[0]
+    weather = WEATHER[weatherInfoRes.data.lives[0].weather]
+  }
+}
+
 readSetting()
 onMounted(() => {
   setTimer()

@@ -17,7 +17,8 @@ export default defineConfig({
   base: './',//默认绝对路径改为相对路径，不然会白屏
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '/image': fileURLToPath(new URL('./src/assets', import.meta.url))
     }
   },
   plugins: [
