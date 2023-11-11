@@ -20,8 +20,8 @@ interface windowOptions {
   url?: string;
 }
 
-export const electronicOptions: windowOptions = {
-  id: 'electronic',
+export const clockOptions: windowOptions = {
+  id: 'clock',
   width: 900,
   height: 400,
   minWidth: 600,
@@ -41,23 +41,6 @@ export const electronicOptions: windowOptions = {
   devTool: true,
   aspectRatioSwtich: true,
   aspectRatio: 1.31,
-}
-export const particleOptions: windowOptions = {
-  id: 'particle',
-  width: 400,
-  height: 320,
-  minWidth: 200,
-  minHeight: 160,
-  maxWidth: 400,
-  maxHeight: 320,
-  transparent: true,
-  frame: false,
-  title: "时钟",
-  alwaysOnTop: true,
-  // devTool: true,
-  aspectRatioSwtich: true,
-  aspectRatio: 1.31,
-  url: '/particle'
 }
 const notepadOptions: windowOptions = {
   id: 'notepad',
@@ -127,7 +110,7 @@ export function createWindow(windowOptions: windowOptions) {
   win.setMenu(null);
   //窗口拖动
   windowMovement(win,windowOptions.id)
-  if (windowOptions.id === 'electronic') {
+  if (windowOptions.id === 'clock') {
     //托盘
     windowTray(win)
   }
@@ -137,9 +120,10 @@ export function createWindow(windowOptions: windowOptions) {
       windowContextMenu(win)
     }
   });
+  win.on("resize", async () => {
+    win?.webContents.send("resize")
+  })
   win.on("closed", () => {
-    console.log('关了');
-
     if (win) {
       BrowserWindowsMap.set(windowOptions.id, null)
       // 在窗口对象被关闭时，取消订阅所有与该窗口相关的事件
@@ -289,7 +273,7 @@ function windowMenu(win: BrowserWindow) {
     {
       id: "1", label: '时钟', type: 'normal', commandId: 1,
       click: (e) => {
-        createWindow(electronicOptions)
+        createWindow(clockOptions)
         // win.webContents.send('show-context-command', 'notepad')
       }
     },

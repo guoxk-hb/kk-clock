@@ -30,7 +30,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   }),
   updataTask:()=>ipcRenderer.send('updata-task','执行了'),
   //拉伸应用
-  frameResized:(callback)=>ipcRenderer.on('resized',(e,message)=>{ 
+  frameResized:(callback)=>ipcRenderer.on('resize',(e,message)=>{ 
     callback()
   }),
   windowMove:(boolean:boolean,name:string)=>ipcRenderer.send(`window-move-open-${name}`,boolean),

@@ -7,10 +7,14 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    Classical: typeof import('./src/components/clock/classical.vue')['default']
+    copy: typeof import('./src/components/clock/electronic copy.vue')['default']
     DragTool: typeof import('./src/components/DragTool.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCol: typeof import('element-plus/es')['ElCol']
+    Electronic: typeof import('./src/components/clock/electronic.vue')['default']
+    'Electronic copy': typeof import('./src/components/clock/electronic copy.vue')['default']
     ElForm: typeof import('element-plus/es')['ElForm']
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElIcon: typeof import('element-plus/es')['ElIcon']
@@ -40,6 +44,7 @@ declare module 'vue' {
     IEpLock: typeof import('~icons/ep/lock')['default']
     IEpSetting: typeof import('~icons/ep/setting')['default']
     IEpUnlock: typeof import('~icons/ep/unlock')['default']
+    Particle: typeof import('./src/components/clock/particle.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

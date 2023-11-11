@@ -1,9 +1,11 @@
 <template>
-  <canvas ref="canvas"></canvas>
+  <div ref="canvasbox" class="h-[32vw]">
+    <canvas ref="canvas"></canvas>
+  </div>
 </template>
 <script setup lang="ts">
 import useTime from '@/hooks/useTime'
-const { time, timeFrame, lunar } = useTime()
+const { time } = useTime()
 
 const canvas = ref<HTMLCanvasElement | null>(null)
 class Particle {
@@ -61,12 +63,15 @@ function clearCanvas() {
 }
 const partials = []
 // let time = null
+let fontSizePercentage = 25
 function updateCanvas() {
   //画事件文字
   const { width, height } = canvas.value
   ctx.beginPath();
   ctx.textBaseline = 'middle';
-  ctx.font = `${20 * devicePixelRatio}vw Arial`;
+  var fontSize = (width * fontSizePercentage) / 100;
+  ctx.font = fontSize + 'px Arial';
+  // ctx.font = "500px 微软雅黑";
   ctx.textAlign = 'center';
   ctx.fillStyle = 'black';
   ctx.fillText(`${time.hours}:${time.minutes}:${time.seconds}`, width / 2, height / 2);
@@ -115,9 +120,12 @@ function draw() {
   }
   requestAnimationFrame(draw)
 }
+const canvasbox = ref<HTMLDivElement>(null)
 function initCanvasSize() {
-  canvas.value.width = window.innerWidth * devicePixelRatio
-  canvas.value.height = window.innerHeight * devicePixelRatio
+  canvas.value.width = canvasbox.value.offsetWidth
+  canvas.value.height = canvasbox.value.offsetHeight
+  // canvas.value.width = canvasbox.value.offsetWidth * devicePixelRatio
+  // canvas.value.height = canvasbox.value.offsetHeight * devicePixelRatio
 }
 let ctx: CanvasRenderingContext2D = null
 let p = null
@@ -134,6 +142,8 @@ onMounted(() => {
 function getRandom(min: number, max: number) {
   return Math.floor(Math.random() * (max + 1 - min) + min);
 }
-
+defineExpose({
+  initCanvasSize,
+});
 </script>
 <style scoped lang="scss"></style>

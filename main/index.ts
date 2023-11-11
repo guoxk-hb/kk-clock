@@ -4,20 +4,20 @@ import { initTaskSchedule, createSchedule } from './schedule'
 
 import { app, ipcMain, BrowserWindow, Menu } from 'electron'
 
-import {createWindow,electronicOptions,particleOptions } from "./windowSetting"
+import { createWindow, clockOptions } from "./windowSetting"
 
 import { readSetting } from "./nodeApi"
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
-let win:BrowserWindow|null=null
+let win: BrowserWindow | null = null
 
 app.whenReady().then(async () => {
   //开发环境需要加  才能触发 通知
   app.setAppUserModelId(process.execPath)
-  win=createWindow(particleOptions) as BrowserWindow
+  win = createWindow(clockOptions) as BrowserWindow
   const setting = await readSetting()
-  win.webContents.send('set-preload-data',setting)
+  win.webContents.send('set-preload-data', setting)
   initTaskSchedule(win.webContents)
   /*获取electron窗体的菜单栏*/
   Menu.setApplicationMenu(null)
@@ -37,18 +37,18 @@ app.on('window-all-closed', () => {
 //创建定时
 ipcMain.on('create-schedule', (event, task) => {
   // console.log(arg)
-  if(win){
-    createSchedule(task,win.webContents)
-  }else{
+  if (win) {
+    createSchedule(task, win.webContents)
+  } else {
     console.log('win is null');
   }
 })
 
 ipcMain.on('updata-task', (event, message) => {
   console.log(message);
-  if(win){
+  if (win) {
     win.webContents.send('schedule')
-  }else{
+  } else {
     console.log('win is null');
   }
 })

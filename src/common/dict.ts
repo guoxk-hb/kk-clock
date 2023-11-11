@@ -70,17 +70,22 @@ const timeFrameOptions=[
 const clockStyleOptions = [
   {
     value: 1,
-    label: '电子',
+    label: 'electronic',
   },
   {
     value: 2,
-    label: '古典',
+    label: 'classical',
   },
   {
     value:3,
-    label:'粒子',
+    label:'particle',
   }
 ]
+enum CLOCK_STYLE {
+  'electronic' = 1,
+  'classical' = 2,
+  'particle' = 3,
+}
 const quitOptions = [
   {
     value:1,
@@ -175,6 +180,7 @@ enum WEATHER{
 export {
   WEEK,
   WEATHER,
+  CLOCK_STYLE,
   weekOptions,
   timeFrameOptions,
   clockStyleOptions,
