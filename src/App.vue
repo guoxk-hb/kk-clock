@@ -7,7 +7,6 @@
 
 <script setup lang="ts">
 import DragTool from '@/components/DragTool.vue'
-import { onMounted, ref } from "vue";
 onMounted(() => {
 })
 let ring = ref<HTMLAudioElement | null>(null)

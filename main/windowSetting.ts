@@ -3,7 +3,7 @@ import { ipcMain, BrowserWindow, screen, Menu, app, Tray } from "electron";
 import path from "path";
 
 interface windowOptions {
-  id:string;//按菜单顺序排列
+  id: string;//按菜单顺序排列
   width: number;
   height: number;
   minWidth: number;
@@ -14,14 +14,14 @@ interface windowOptions {
   frame?: boolean;
   title: string;
   alwaysOnTop?: boolean;
-  devTool?:boolean;
+  devTool?: boolean;
   aspectRatioSwtich?: boolean;
   aspectRatio?: number;
   url?: string;
 }
 
 export const electronicOptions: windowOptions = {
-  id:'electronic',
+  id: 'electronic',
   width: 900,
   height: 400,
   minWidth: 600,
@@ -40,10 +40,27 @@ export const electronicOptions: windowOptions = {
   alwaysOnTop: true,
   devTool: true,
   aspectRatioSwtich: true,
-  aspectRatio: 1.36,
+  aspectRatio: 1.31,
+}
+export const particleOptions: windowOptions = {
+  id: 'particle',
+  width: 400,
+  height: 320,
+  minWidth: 200,
+  minHeight: 160,
+  maxWidth: 400,
+  maxHeight: 320,
+  transparent: true,
+  frame: false,
+  title: "时钟",
+  alwaysOnTop: true,
+  // devTool: true,
+  aspectRatioSwtich: true,
+  aspectRatio: 1.31,
+  url: '/particle'
 }
 const notepadOptions: windowOptions = {
-  id:'notepad',
+  id: 'notepad',
   width: 900,
   height: 400,
   minWidth: 600,
@@ -56,7 +73,7 @@ const notepadOptions: windowOptions = {
   url: '/notepad'
 }
 const settingOptions: windowOptions = {
-  id:'setting',
+  id: 'setting',
   width: 900,
   height: 400,
   minWidth: 600,
@@ -65,15 +82,15 @@ const settingOptions: windowOptions = {
   maxHeight: Infinity,
   title: "时钟设置",
   url: '/setting',
-  devTool:true,
+  devTool: true,
 }
 //记录创建的窗口
-const BrowserWindowsMap =new Map<string, BrowserWindow>()
+const BrowserWindowsMap = new Map<string, BrowserWindow | null>()
 export function createWindow(windowOptions: windowOptions) {
-  if(BrowserWindowsMap.has(windowOptions.id)){
+  if (BrowserWindowsMap.has(windowOptions.id)) {
     return false;
   }
-  const win = new BrowserWindow({
+  let win: BrowserWindow | null = new BrowserWindow({
     width: windowOptions.width || 1000,
     height: windowOptions.height || 800,
     minWidth: windowOptions.minWidth || 0,
@@ -99,7 +116,7 @@ export function createWindow(windowOptions: windowOptions) {
   //将创建的窗口记录下来
   BrowserWindowsMap.set(windowOptions.id, win)
 
-  if(windowOptions.devTool){
+  if (windowOptions.devTool) {
     win.webContents.openDevTools()
   }
   //纵横比 等比缩放
@@ -109,12 +126,26 @@ export function createWindow(windowOptions: windowOptions) {
   //顶部菜单
   win.setMenu(null);
   //窗口拖动
-  windowMovement(win)
-  //窗口拖动
-  windowTray(win)
+  windowMovement(win,windowOptions.id)
+  if (windowOptions.id === 'electronic') {
+    //托盘
+    windowTray(win)
+  }
   //右键菜单
   win.webContents.on('context-menu', (e, params) => {
-    windowContextMenu(win)
+    if (win) {
+      windowContextMenu(win)
+    }
+  });
+  win.on("closed", () => {
+    console.log('关了');
+
+    if (win) {
+      BrowserWindowsMap.set(windowOptions.id, null)
+      // 在窗口对象被关闭时，取消订阅所有与该窗口相关的事件
+      ipcMain.removeAllListeners(`window-move-open-${windowOptions.id}`)
+      win = null;
+    }
   });
   //node服务
   if (process.argv[2]) {
@@ -126,6 +157,8 @@ export function createWindow(windowOptions: windowOptions) {
   } else {
     win.loadFile('index.html')
   }
+
+  return win
 
   // win.loadFile(path.join(__dirname, 'index.html'))
 
@@ -182,7 +215,7 @@ export function createWindow(windowOptions: windowOptions) {
 }
 
 //鼠标拖动 新解决方案
-export function windowMovement(win: BrowserWindow): void {
+export function windowMovement(win: BrowserWindow,id:string): void {
   //窗口定位
   let winStartPosition = { x: 0, y: 0 };
   //鼠标定位
@@ -190,42 +223,44 @@ export function windowMovement(win: BrowserWindow): void {
   //移动定时器
   let movingInterval: ReturnType<typeof setInterval> | null;
   //接受渲染进程鼠标事件
-  ipcMain.on('window-move-open', (events, canMoving: boolean) => {
-    //  console.log('点击了',canMoving);
-    const currentWindowSize = win.getSize();
-    const currentWindow = BrowserWindow.getFocusedWindow() as BrowserWindow;
-    if (currentWindow===win) {
-      if (canMoving) {
-        // 读取原位置
-        const winPosition = win.getPosition();
-        winStartPosition = { x: winPosition[0], y: winPosition[1] };
-        mouseStartPosition = screen.getCursorScreenPoint();
-        // 清除
-        if (movingInterval) {
-          clearInterval(movingInterval);
-        }
-        // 新开
-        movingInterval = setInterval(() => {
-          if (!currentWindow.isDestroyed()) {
-            // 如果窗口失去焦点，则停止移动
-            if (!currentWindow.isFocused()) {
-              clearInterval(movingInterval as NodeJS.Timeout);
-              movingInterval = null;
-            }
-            // 实时更新位置
-            const cursorPosition = screen.getCursorScreenPoint();
-            //计算移动的距离重新设置定位
-            const x = winStartPosition.x + cursorPosition.x - mouseStartPosition.x;
-            const y = winStartPosition.y + cursorPosition.y - mouseStartPosition.y;
-            //setBounds 调整窗口大小并将窗口移动到提供的边界。 Resizes and moves the window to the supplied bounds. 
-            win.setBounds({ x, y, width: currentWindowSize[0], height: currentWindowSize[1] });
-            //win.setsetPosition 将窗口移动到 x 和 y。 animate boolean (可选) macOS
-            //win.setsetPosition(x,y,true)
+  ipcMain.on(`window-move-open-${id}`, (events, canMoving: boolean) => {
+    if (!win.isDestroyed()) {
+      // console.log('点击了',canMoving);
+      const currentWindowSize = win.getSize();
+      const currentWindow = BrowserWindow.getFocusedWindow() as BrowserWindow;
+      if (currentWindow === win) {
+        if (canMoving) {
+          // 读取原位置
+          const winPosition = win.getPosition();
+          winStartPosition = { x: winPosition[0], y: winPosition[1] };
+          mouseStartPosition = screen.getCursorScreenPoint();
+          // 清除
+          if (movingInterval) {
+            clearInterval(movingInterval);
           }
-        }, 10);
-      } else {
-        clearInterval(movingInterval as ReturnType<typeof setInterval>);
-        movingInterval = null;
+          // 新开
+          movingInterval = setInterval(() => {
+            if (!currentWindow.isDestroyed()) {
+              // 如果窗口失去焦点，则停止移动
+              if (!currentWindow.isFocused()) {
+                clearInterval(movingInterval as NodeJS.Timeout);
+                movingInterval = null;
+              }
+              // 实时更新位置
+              const cursorPosition = screen.getCursorScreenPoint();
+              //计算移动的距离重新设置定位
+              const x = winStartPosition.x + cursorPosition.x - mouseStartPosition.x;
+              const y = winStartPosition.y + cursorPosition.y - mouseStartPosition.y;
+              //setBounds 调整窗口大小并将窗口移动到提供的边界。 Resizes and moves the window to the supplied bounds. 
+              win.setBounds({ x, y, width: currentWindowSize[0], height: currentWindowSize[1] });
+              //win.setsetPosition 将窗口移动到 x 和 y。 animate boolean (可选) macOS
+              //win.setsetPosition(x,y,true)
+            }
+          }, 10);
+        } else {
+          clearInterval(movingInterval as ReturnType<typeof setInterval>);
+          movingInterval = null;
+        }
       }
     }
   })
@@ -254,7 +289,8 @@ function windowMenu(win: BrowserWindow) {
     {
       id: "1", label: '时钟', type: 'normal', commandId: 1,
       click: (e) => {
-        win.webContents.send('show-context-command', 'notepad')
+        createWindow(electronicOptions)
+        // win.webContents.send('show-context-command', 'notepad')
       }
     },
     {
@@ -288,7 +324,12 @@ function windowMenu(win: BrowserWindow) {
     {
       id: "6", label: '退出', type: 'checkbox', commandId: 6,
       click: (e) => {
-        app.quit()
+        // app.quit()
+        // if(win===BrowserWindowsMap.get('electronic')){
+        //   win.hide()
+        // }else{
+          win.close()
+        // }
       }
     },
   ]

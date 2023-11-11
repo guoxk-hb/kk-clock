@@ -16,50 +16,55 @@
           <span class=" px-[0.5vw] py-[1vw] bg-red-500 rounded-[1vw]">{{ timeFrame }}</span>
         </div>
       </div>
-      <div
-        class="px-[5vw] py-[3vw] text-left leading-[7vw] text-[4vw]  flex justify-around rounded-md bg-violet-200/[.4]">
+      <div class=" overflow-hidden px-[2vw] flex justify-around rounded-md bg-violet-200/[.4]">
         <!-- bg-violet-200/[.4] -->
-        <div style="letter-spacing: 0.5vw" class="">
-          <div class="py-[1vw]">
+        <div style="letter-spacing: 0.5vw" class="text-[5vw]">
+          <div class="h-[10vw] leading-[10vw]">
             <span class="">{{ time.year }}年{{ time.month }}月{{ time.date }}日</span>
           </div>
-          <div class="py-[1vw]">
+          <div class=" h-[10vw] leading-[10vw]">
             <span class="">{{ lunar }}</span>
           </div>
 
         </div>
-        <div class="px-[4vw] text-[6vw]">
-          <div style="letter-spacing: 1vw" class="text-[5vw]">
-            <el-image class="w-[8vw] align-bottom" :src="locationPng" fit="fill" :lazy="true"></el-image>
-            <span class="px-[1vw]">{{ weatherInfo?.province }}</span>
-            <span>{{ weatherInfo?.city }}</span>
+        <div class="px-[4vw] text-[5vw]">
+          <div style="letter-spacing: 1vw" class="text-[5vw] h-[10vw] leading-[10vw]">
+            <el-image class="unselectable w-[10vw]  p-[1vw] align-bottom " :src="locationPng" fit="fill"
+              :lazy="true"></el-image>
+            <span class="px-[1vw] ">{{ weatherInfo?.province }}</span>
+            <span class="text-[4.5vw]">{{ weatherInfo?.city }}</span>
           </div>
-          <div style="letter-spacing: 1vw">
-            <el-tooltip :content="`天气：${weatherInfo?.weather}，温度：${weatherInfo?.temperature}&#8451;`" placement="top"
-              effect="light">
+          <div style="letter-spacing: 1vw" class="pt-[0.5vw] h-[10vw] leading-[10vw]">
+            <el-tooltip placement="top" effect="light">
+              <template #content>
+                <div class="w-full overflow-hidden flex justify-between items-center text-[5vw]">
+                  <el-tooltip content="空气湿度" placement="top" effect="light">
+                    <div class="pr-[1.5vw]">
+                      <el-image class="unselectable w-[5vw] scale-150 align-bottom" :src="humidityPng"
+                        :lazy="true"></el-image>
+                      <span class="pl-[1vw]">{{ weatherInfo?.humidity }}</span>
+                    </div>
+                  </el-tooltip>
+                  <el-tooltip :content="`${weatherInfo?.winddirection}风${weatherInfo?.windpower}级`" placement="top"
+                    effect="light">
+                    <div class="pl-[2vw]">
+                      <el-image class="unselectable w-[5vw] scale-125 align-bottom" :src="windpowerPng"
+                        :lazy="true"></el-image>
+                      <span class="px-[2vw]">{{ weatherInfo?.windpower }}</span>
+                    </div>
+                  </el-tooltip>
+                  <div class="pr-[2vw]"><span>{{ `天气：${weatherInfo?.weather}，温度：${weatherInfo?.temperature}&#8451;`
+                  }}</span></div>
+                </div>
+              </template>
               <div>
-                <el-image class="w-[10vw] align-bottom mb-[-0.5vw]" :src="weatherIcon" fit="fill" :lazy="true"></el-image>
+                <el-image class="unselectable w-[10vw] p-[1vw] align-bottom" :src="getWeatherIcon()" fit="fill"
+                  :lazy="true"></el-image>
                 <span class="px-[2vw]">{{ weatherInfo?.temperature }}&#8451;</span>
-                <span class="py-[1vw] text-[5vw]">星期{{ WEEK[Number(time.day)] }}</span>
+                <span class="py-[1vw] text-[4.5vw]">星期{{ WEEK[Number(time.day)] }}</span>
               </div>
             </el-tooltip>
           </div>
-          <div class="w-[40vw] m-auto flex justify-between">
-            <el-tooltip content="空气湿度" placement="top" effect="light">
-              <div>
-                <el-image class="w-[10vw]  align-bottom" :src="humidityPng" :lazy="true"></el-image>
-                <span>{{ weatherInfo?.humidity }}</span>
-              </div>
-            </el-tooltip>
-            <el-tooltip :content="`${weatherInfo?.winddirection}风${weatherInfo?.windpower}级`" placement="top"
-              effect="light">
-              <div>
-                <el-image class="w-[10vw] p-[1.2vw]  align-bottom" :src="windpowerPng" :lazy="true"></el-image>
-                <span>{{ weatherInfo?.windpower }}</span>
-              </div>
-            </el-tooltip>
-          </div>
-
         </div>
 
         <!-- writing-mode: vertical-rl; -->
@@ -100,7 +105,6 @@
 <script setup lang="ts">
 import { formateTime, toCnDate, formateTimestamp } from '@/common/common'
 import { WEEK, WEATHER, timeFrameOptions } from '@/common/dict'
-import { reactive, ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { getWeatherInfo } from '@/api/common'
 import humidityPng from '@/assets/humidity.png'
 import windpowerPng from '@/assets/windpower.png'
@@ -159,6 +163,7 @@ const animation = ref(null)
 
 //滚动事件
 function handleScrollAnimation() {
+  cancelScrollAnimation()
   //元素支持滚动
   if (scrollText.value.scrollWidth > scrollText.value.clientWidth) {
     const duration = 6000 // 动画持续时间（毫秒）
@@ -175,8 +180,9 @@ function handleScrollAnimation() {
 }
 //取消滚动
 function cancelScrollAnimation() {
-  if (scrollText.value.scrollWidth > scrollText.value.clientWidth && animation.value !== null) {
+  if (animation.value !== null) {
     animation.value.cancel()
+    animation.value = null
   }
 }
 //窗口移动后 重启滚动、重新计算距离
@@ -205,25 +211,27 @@ function findRecentTask(task: Array<Task>) {
   task = task.sort((a, b) => formateTimestamp(a.date) - formateTimestamp(b.date))
   let recentTask: RecentTask | undefined
   for (let i = 0; i < task.length; i++) {
-    if (task[i].switch === true && (task[i].week.includes(time.day) || task[i].week.length === 0)) {
-      recentTask = Object.assign(task[i], { week: time.day })
+    if (task[i].switch === true &&
+      (task[i].week.includes(time.day) || task[i].week.length === 0)
+      && formateTimestamp(task[i].date) > formateTimestamp(`${time.hours}:${time.minutes}`)
+    ) {
+      recentTask = Object.assign({}, task[i], { week: time.day })
       break
     }
   }
   if (!recentTask) {
     return findNotTodayRecentTask(task, time.day + 1)
   } else {
+    // console.log('第一遍找到了');
     return recentTask
   }
-
 }
 //如果当天没有则 找接下来最近的一个闹钟
 function findNotTodayRecentTask(task: Array<Task>, day: number) {
   let recentTask: RecentTask | undefined
   for (let i = 0; i < task.length; i++) {
     if (task[i].switch === true && task[i].week.includes(day)) {
-      recentTask = Object.assign(task[i], { week: day })
-      console.log(recentTask)
+      recentTask = Object.assign({}, task[i], { week: day })
       break
     }
   }
@@ -246,9 +254,10 @@ async function readTask() {
   recentTask.value = findRecentTask(task);
   await nextTick()
   handleScrollAnimation()
+  // console.log('找到了',recentTask.value);
 }
 readTask()
-
+window.electronAPI.scheduleCallback(() => { readTask() })
 interface SettingForm {
   ringVal: Array<number>,
   ringName: string,
@@ -276,18 +285,20 @@ interface Live {
   windpower: string,
 }
 let weatherInfo = ref<Live>(null)
-let weather = 'cloudy'
-let weatherIcon = ref(`/src/assets/icon_weather/${weather}.png`)
+let weather = ref('cloudy')
+function getWeatherIcon() {
+  return `/src/assets/icon_weather/${weather.value}.png`
+}
 //读取 setting
 async function readSetting() {
   let settingRes: SettingForm = await window.electronAPI.readSetting()
+  console.log(settingRes, 'settingRes');
   let weatherInfoRes = await getWeatherInfo({ city: settingRes.county })
   if (weatherInfoRes.data.status === '1') {
     weatherInfo.value = weatherInfoRes.data.lives[0]
-    weather = WEATHER[weatherInfoRes.data.lives[0].weather]
+    weather.value = WEATHER[weatherInfoRes.data.lives[0].weather]
   }
 }
-
 readSetting()
 onMounted(() => {
   setTimer()

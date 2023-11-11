@@ -4,12 +4,17 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect:"/electron",
+      redirect:"/electronic",
     },
     {
-      path: '/electron',
-      name: 'electron',
+      path: '/electronic',
+      name: 'electronic',
       component:() => import('@/views/clock/electronic.vue'),
+    },
+    {
+      path: '/particle',
+      name: 'particle',
+      component:() => import('@/views/clock/particle.vue'),
     },
     {
       path: '/notepad',

@@ -1,9 +1,17 @@
 const { contextBridge,ipcRenderer} = require('electron')
-import { readTask, writeTask, readRing, writeRing, readSetting,writeSetting} from "./nodeApi"
+import { readTask, writeTask, readRing, writeRing,writeSetting} from "./nodeApi"
+
+
+// 定义预加载数据对象
+let setting = null;
+
+// 设置从主进程接收数据对象的函数
+ipcRenderer.on('set-preload-data', (event, dataObject) => {
+  setting = dataObject;
+});
 contextBridge.exposeInMainWorld('electronAPI', {
   readTask: () => readTask(),
   writeTask: (task) => writeTask(task),
-  readSetting:()=>readSetting(),
   writeSetting:(setting)=>writeSetting(setting),
   readRing: () => readRing(),
   writeRing: (ring) => writeRing(ring),
@@ -16,13 +24,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
     callback(command)
   }),
   //定时器 闹钟通知
-  showNotification:(callback)=>ipcRenderer.on('schedule',(el,message)=>{
+  scheduleCallback:(callback)=>ipcRenderer.on('schedule',(el,message)=>{
     // console.log(el,message,'接受到了scheduleCronstyle');
-    callback(message)
+    callback()
   }),
+  updataTask:()=>ipcRenderer.send('updata-task','执行了'),
   //拉伸应用
   frameResized:(callback)=>ipcRenderer.on('resized',(e,message)=>{ 
     callback()
   }),
-  windowMove:(boolean:boolean)=>ipcRenderer.send('window-move-open',boolean)
-  })
+  windowMove:(boolean:boolean,name:string)=>ipcRenderer.send(`window-move-open-${name}`,boolean),
+  readSetting:()=>{
+    return setting
+  },
+  // readSetting:()=>readSetting(),
+})

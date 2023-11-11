@@ -5,6 +5,8 @@
 </template>
 
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
+
 // 鼠标进入判断，只有鼠标进入到范围内，才能进行鼠标按压拖拽
 let enterFlag = false;
 // 鼠标按压判断，只有鼠标进入范围内，并且按压状态，此时释放鼠标才会关闭窗口移动
@@ -16,6 +18,8 @@ function mouseenter() {
   enterFlag = true;
 }
 
+const route = useRoute()
+
 /**鼠标移出 */
 function mouseleave() {
   enterFlag = false;
@@ -23,7 +27,7 @@ function mouseleave() {
   if (timer !== null) {
     timer = setTimeout(() => {
       mousedownFlag = false;
-      window.electronAPI.windowMove(false);
+      window.electronAPI.windowMove(false,route.name);
       timer = null;
     }, 1000);
   }
@@ -36,13 +40,13 @@ function mousedown(e:MouseEvent) {
     return
   }
   if (enterFlag) {
-    window.electronAPI.windowMove(true);
+    window.electronAPI.windowMove(true,route.name);
     mousedownFlag = true;
   }
 }
 function mouseup(e: MouseEvent) {
   if (enterFlag && mousedownFlag) {
-    window.electronAPI.windowMove(false);
+    window.electronAPI.windowMove(false,route.name);
     mousedownFlag = false;
   }
 }

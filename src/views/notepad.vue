@@ -109,7 +109,6 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, toRaw } from 'vue'
 import { weekOptions, WEEK } from '@/common/dict'
 const rules = reactive({
 	text: [
@@ -155,7 +154,7 @@ const editScheduleForm: task = reactive({
 })
 let scheduleTable = reactive([])
 //增
-const addTask = () => {
+const addTask = async () => {
 	if (scheduleForm.text === '') {
 		ElMessage({
 			message: '请输入task。',
@@ -174,8 +173,9 @@ const addTask = () => {
 	const task = Object.assign({}, toRaw(scheduleForm))
 	task.week = task.week.sort((a, b) => a - b)
 	scheduleTable.push(task)
-	window.electronAPI.createSchedule(toRaw(scheduleTable))
-	window.electronAPI.writeTask(toRaw(scheduleTable))
+	await window.electronAPI.createSchedule(toRaw(scheduleTable))
+  await	window.electronAPI.writeTask(toRaw(scheduleTable))
+	await	window.electronAPI.updataTask()
 }
 //删
 const deleteTask = (index) => {
@@ -188,9 +188,10 @@ const deleteTask = (index) => {
 		type: 'warning',
 		center: true
 	})
-		.then(() => {
+		.then(async () => {
 			scheduleTable.splice(index, 1)
-			window.electronAPI.writeTask(toRaw(scheduleTable))
+			await window.electronAPI.writeTask(toRaw(scheduleTable))
+			await	window.electronAPI.updataTask()
 			ElMessage({
 				type: 'success',
 				message: '删除成功'
@@ -218,7 +219,7 @@ const editTask = (row) => {
 	editScheduleForm.week = row.week
 }
 //保存
-const saveTask = (row) => {
+const saveTask = async (row) => {
 	row.edit = false
 	//row.id=editScheduleForm.id
 	row.date = editScheduleForm.date
@@ -226,8 +227,9 @@ const saveTask = (row) => {
 	row.switch = editScheduleForm.switch
 	row.text = editScheduleForm.text
 	row.week = editScheduleForm.week.sort((a, b) => a - b)
-	window.electronAPI.createSchedule(toRaw(row))
-	window.electronAPI.writeTask(toRaw(scheduleTable))
+ await	window.electronAPI.createSchedule(toRaw(row))
+ await	window.electronAPI.writeTask(toRaw(scheduleTable))
+ await	window.electronAPI.updataTask()
 }
 //取消
 const cancelTask = (row) => {

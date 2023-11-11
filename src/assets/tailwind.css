@@ -13,15 +13,25 @@ html,body{
 
 .dragable {
   -webkit-app-region: drag;
-  -webkit-user-select: none;
 }
 
-.undragable,.el-popper {
+.undragable {
   -webkit-app-region: no-drag;
 }
 
-.unselect{
+.unselectable {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
   user-select: none;
+}
+
+/* el-image组件禁止拖动  防止鼠标拖动事件 松开不触发*/
+.el-image__inner {
+  user-select: none; /* 标准语法，禁止用户选择内容 */
+  -moz-user-select: none; /* Firefox 特定语法，禁止用户选择内容 */
+  -webkit-user-drag: none; /* WebKit 特定语法，阻止用户拖动 */
 }
 
 .text-shadow {
