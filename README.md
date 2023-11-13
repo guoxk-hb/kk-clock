@@ -19,9 +19,4 @@
 目前仅支持win系统，其他系统未做适配。
 
 ## 界面展示
-
-![image-20231113160910288](C:\Users\guoxk\AppData\Roaming\Typora\typora-user-images\image-20231113160910288.png)![image-20231113161030209](C:\Users\guoxk\AppData\Roaming\Typora\typora-user-images\image-20231113161030209.png)
-
-![image-20231113160930283](C:\Users\guoxk\AppData\Roaming\Typora\typora-user-images\image-20231113160930283.png)
-
-![image-20231113161003916](C:\Users\guoxk\AppData\Roaming\Typora\typora-user-images\image-20231113161003916.png)
+![输入图片说明](.vscode/image.png)
