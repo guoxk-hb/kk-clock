@@ -11,7 +11,7 @@ interface Task{
 type PromiseTask=Promise<Array<Task|never>>
 
 //读取任务队列
-const taskPath = path.join(__dirname.replace('main', ''), 'task.json')
+const taskPath = path.join(__dirname.replace('main', 'static'), 'task.json')
 export function readTask():PromiseTask{
   const dataObj = new Promise<Awaited<PromiseTask>>((resolve, reject) => {
     fs.readFile(taskPath, 'utf-8', (err, data) => {
@@ -61,7 +61,7 @@ interface District{
   alarmShow: true,
 }
 //读取任务队列
-const settingPath = path.join(__dirname.replace('main', ''), 'setting.json')
+const settingPath = path.join(__dirname.replace('main', 'static'), 'setting.json')
 //写入设置文件
 export async function writeSetting(form:SettingForm) {
   const dataObj = new Promise((resolve, reject) => {

@@ -93,7 +93,7 @@ const notepadOptions: windowOptions = {
   transparent: false,
   frame: true,
   title: "闹钟",
-  url: '/notepad'
+  url: 'notepad'
 }
 const settingOptions: windowOptions = {
   id: 'setting',
@@ -106,7 +106,7 @@ const settingOptions: windowOptions = {
   transparent: false,
   frame: true,
   title: "时钟设置",
-  url: '/setting',
+  url: 'setting',
   // devTool: true,
 }
 //记录创建的窗口
@@ -128,7 +128,7 @@ export function createWindow(windowOptions: windowOptions) {
     alwaysOnTop: windowOptions.alwaysOnTop || false,
     autoHideMenuBar: true,
     hasShadow: true,
-    icon: path.join(__dirname.replace('main', ''), 'logo.png'),
+    icon: path.join(__dirname.replace('main', 'static'), 'logo.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,//渲染进程 可以调用nodeAPI
@@ -151,7 +151,7 @@ export function createWindow(windowOptions: windowOptions) {
   //顶部菜单
   win.setMenu(null);
   //窗口拖动
-  windowMovement(win,windowOptions.id)
+  windowMovement(win, windowOptions.id)
   if (windowOptions.id === 'clock') {
     //托盘
     windowTray(win)
@@ -179,12 +179,19 @@ export function createWindow(windowOptions: windowOptions) {
   //node服务
   if (process.argv[2]) {
     if (windowOptions.url) {
-      win.loadURL(process.argv[2] + `${windowOptions.url}`)
+      win.loadURL(process.argv[2] + `#/${windowOptions.url}`)
     } else {
       win.loadURL(process.argv[2])
     }
   } else {
-    win.loadFile('index.html')
+    if (windowOptions.url) {
+      win.loadFile(path.join(__dirname.replace('main', ''), 'index.html'),{
+        hash: windowOptions.url
+      })
+    } else {
+      win.loadURL(path.join(__dirname.replace('main', ''), 'index.html'))
+    }
+
   }
 
   return win
@@ -244,7 +251,7 @@ export function createWindow(windowOptions: windowOptions) {
 }
 
 //鼠标拖动 新解决方案
-export function windowMovement(win: BrowserWindow,id:string): void {
+export function windowMovement(win: BrowserWindow, id: string): void {
   //窗口定位
   let winStartPosition = { x: 0, y: 0 };
   //鼠标定位
@@ -357,7 +364,7 @@ function windowMenu(win: BrowserWindow) {
         // if(win===BrowserWindowsMap.get('electronic')){
         //   win.hide()
         // }else{
-          win.close()
+        win.close()
         // }
       }
     },
@@ -379,7 +386,7 @@ export function windowContextMenu(win: BrowserWindow): void {
 
 //系统托盘
 export function windowTray(win: BrowserWindow): void {
-  const tray = new Tray(path.join(__dirname.replace('main', ''), 'logo.png'))
+  const tray = new Tray(path.join(__dirname.replace('main', 'static'), 'logo.png'))
   const contextMenu = windowMenu(win)
   tray.setToolTip('clock时钟')
   tray.setContextMenu(contextMenu)
@@ -401,7 +408,7 @@ export function openNewWindow(win: BrowserWindow): void {
 //
 
 // export function 
-ipcMain.on('close-win-setting',(event, message)=>{
+ipcMain.on('close-win-setting', (event, message) => {
   let win = BrowserWindowsMap.get('setting')
   win?.destroy();
 })

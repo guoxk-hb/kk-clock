@@ -6,9 +6,9 @@ import { Notification } from 'electron'
 
 import path from 'path'
 
-const logo = path.join(__dirname.replace('main', ''), 'logo.png')
-const img = path.join(__dirname.replace('main', ''), 'R.jpg')
-// const audio = path.join(__dirname.replace('main', ''), 'pikaqiu.mp3')
+const logo = path.join(__dirname.replace('main', 'static'), 'logo.png')
+const img = path.join(__dirname.replace('main', 'static'), 'R.jpg')
+// const audio = path.join(__dirname.replace('main', 'static'), 'pikaqiu.mp3')
 // const notification= new Notification({
 //   toastXml,
 // });

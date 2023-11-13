@@ -44,19 +44,19 @@ export const ElectronBuildPlugin = (): Plugin => {
             output: path.resolve(process.cwd(), 'release'),
             app: path.resolve(process.cwd(), 'dist'),
           },
-          asar: true,
+          asar: false,
           appId: 'com.kk-clock.app',//appid
           productName: 'kk-clock',//包名
           nsis: {
             oneClick: false,//取消一键安装
             // 是否开启安装时权限限制（此电脑或当前用户）
-            perMachine: true,
+            // perMachine: true,
             // 允许请求提升。 如果为false，则用户必须使用提升的权限重新启动安装程序。
-            allowElevation: false,
+            // allowElevation: false,
             // 允许修改安装目录，建议为 true，是否允许用户改变安装目录，默认是不允许
             allowToChangeInstallationDirectory: true,
             // 卸载时删除用户数据
-            deleteAppDataOnUninstall: true,
+            // deleteAppDataOnUninstall: true,
             // 安装图标
             // installerIcon: 'build/installerIcon_120.ico',
             // 卸载图标
@@ -64,14 +64,14 @@ export const ElectronBuildPlugin = (): Plugin => {
             // 安装时头部图标
             // installerHeaderIcon: 'build/installerHeaderIcon_120.ico',
             // 创建桌面图标
-            createDesktopShortcut: true,
+            // createDesktopShortcut: true,
             // 创建开始菜单图标
-            createStartMenuShortcut: true
+            // createStartMenuShortcut: true
           },
-          win: {
-            icon: path.resolve(process.cwd(), 'public/logo.png'),
-            artifactName: `kk-clock`
-          },
+          // win: {
+          //   // icon: path.resolve(process.cwd(), 'public/static/logo.png'),//图片大小必须 256*256才可以
+          //   artifactName: `kk-clock`
+          // },
           //检测自动更新用
           // publish:[
           //   {

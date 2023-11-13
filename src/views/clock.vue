@@ -3,7 +3,8 @@
     <div class="box-border border-soild rounded-md border-1 border-gray-300">
       <electronic v-if="clockStyle === 'electronic'"></electronic>
       <particle v-if="clockStyle === 'particle'" ref="particleRef"></particle>
-      <div v-if="setting?.dateShow" class="py-[2vw] overflow-hidden px-[2vw] flex justify-around rounded-md bg-violet-200/[.4]">
+      <div v-if="setting?.dateShow"
+        class="py-[2vw] overflow-hidden px-[2vw] flex justify-around rounded-md bg-violet-200/[.4]">
         <!-- bg-violet-200/[.4] -->
         <div style="letter-spacing: 0.5vw" class="text-[5vw]">
           <div class="h-[10vw] leading-[10vw]">
@@ -18,8 +19,13 @@
           <div style="letter-spacing: 1vw" class="text-[5vw] h-[10vw] leading-[10vw]">
             <el-image class="unselectable w-[10vw]  p-[1vw] align-bottom " :src="locationPng" fit="fill"
               :lazy="true"></el-image>
-            <span class="px-[1vw] ">{{ weatherInfo?.province }}</span>
-            <span class="text-[4.5vw]">{{ weatherInfo?.city }}</span>
+            <span v-if="weatherInfo?.province&&weatherInfo?.city">
+              <span class="px-[1vw] ">{{ weatherInfo?.province }}</span>
+              <span class="text-[4.5vw]">{{ weatherInfo?.city }}</span>
+            </span>
+            <span v-else class="px-[1vw]">
+              暂未获取到位置信息
+            </span>
           </div>
           <div style="letter-spacing: 1vw" class="pt-[0.5vw] h-[10vw] leading-[10vw]">
             <el-tooltip placement="top" effect="light"
@@ -158,7 +164,7 @@ interface RecentTask extends Partial<Pick<Task, 'id' | 'date' | 'edit' | 'switch
 }
 //计算最近的定时闹钟
 function findRecentTask(task: Array<Task>) {
-  task = task.sort((a:Task, b:Task)=> formateTimestamp(a.date) - formateTimestamp(b.date))
+  task = task.sort((a: Task, b: Task) => formateTimestamp(a.date) - formateTimestamp(b.date))
   let recentTask: RecentTask | undefined
   for (let i = 0; i < task.length; i++) {
     if (task[i].switch === true &&
@@ -243,7 +249,8 @@ interface Live {
 let weatherInfo = ref<Live>(null)
 let weather = ref<string>('cloudy')
 function getWeatherIcon() {
-  return `/icon_weather/${weather.value}.png`
+  let url = `../icon_weather/${weather.value}.png`;
+  return new URL(url, import.meta.url).href;
 }
 //读取 setting
 let setting = ref<SettingForm>(null)
@@ -256,7 +263,7 @@ async function readSetting() {
   let weatherInfoRes = await getWeatherInfo({ city: settingRes.county })
   if (weatherInfoRes.data.status === '1') {
     weatherInfo.value = weatherInfoRes.data.lives[0]
-    weather.value = WEATHER[weatherInfoRes.data.lives[0].weather]
+     weather.value = WEATHER[weatherInfoRes.data.lives[0].weather]
   }
 }
 readSetting()
