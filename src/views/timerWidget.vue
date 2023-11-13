@@ -1,6 +1,6 @@
 <template>
   <!--秒表-->
-  <div></div>
+  <div>秒表</div>
 </template>
 
 <script setup lang="ts">

@@ -1,11 +1,20 @@
 const { contextBridge,ipcRenderer} = require('electron')
-import { readTask, writeTask, readRing, writeRing } from "./nodeApi"
+import { readTask, writeTask, readRing, writeRing,writeSetting} from "./nodeApi"
+
+
+// 定义预加载数据对象
+let setting = null;
+
+// 设置从主进程接收数据对象的函数
+ipcRenderer.on('set-preload-data', (event, dataObject) => {
+  setting = dataObject;
+});
 contextBridge.exposeInMainWorld('electronAPI', {
   readTask: () => readTask(),
   writeTask: (task) => writeTask(task),
-  createSchedule:(item)=>ipcRenderer.send('create-schedule',item),
   readRing: () => readRing(),
   writeRing: (ring) => writeRing(ring),
+  createSchedule:(item)=>ipcRenderer.send('create-schedule',item),
   // //右键菜单 更新了新的方式，使用electron方式
   // showContextMenu:() => ipcRenderer.send('show-context-menu'),
   //右键菜单触发的回调
@@ -14,13 +23,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
     callback(command)
   }),
   //定时器 闹钟通知
-  showNotification:(callback)=>ipcRenderer.on('schedule',(el,message)=>{
+  scheduleCallback:(callback)=>ipcRenderer.on('schedule',(el,message)=>{
     // console.log(el,message,'接受到了scheduleCronstyle');
-    callback(message)
-  }),
-  //拉伸应用
-  frameResized:(callback)=>ipcRenderer.on('resized',(e,message)=>{ 
     callback()
   }),
-  windowMove:(boolean:boolean)=>ipcRenderer.send('window-move-open',boolean)
-  })
+  updataTask:()=>ipcRenderer.send('updata-task','执行了'),
+  //拉伸应用
+  frameResized:(callback)=>ipcRenderer.on('resize',(e,message)=>{ 
+    callback()
+  }),
+  windowMove:(boolean:boolean,name:string)=>ipcRenderer.send(`window-move-open-${name}`,boolean),
+  readSetting:()=>{
+    return setting
+  },
+  writeSetting:(setting)=>writeSetting(setting),
+  closeWin:()=>ipcRenderer.send('close-win-setting'),
+  // readSetting:()=>readSetting(),
+  restartApp:()=>ipcRenderer.send('restart-app')
+})

@@ -3,7 +3,8 @@ import { createPinia } from 'pinia'
 
 import '@/assets/tailwind.css'
 
-import 'default-passive-events'
+import '@/common/browser_patch'
+// import 'default-passive-events'
 
 import App from '@/App.vue'
 import router from './router'

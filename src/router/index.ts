@@ -1,28 +1,25 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import electronic from '@/views/electronic.vue'
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      redirect:"/electron",
+      redirect:"/clock",
     },
     {
-      path: '/electron',
-      name: 'electron',
-      component:() => import('@/views/electronic.vue'),
+      path: '/clock',
+      name: 'clock',
+      component:() => import('@/views/clock.vue'),
     },
     {
       path: '/notepad',
       name: 'notepad',
       component: () => import('@/views/notepad.vue'),
-      props:{default:true,sidebar:false}
     },
     {
       path: '/setting',
       name: 'setting',
       component: () => import('@/views/setting.vue'),
-      props:{default:true,sidebar:false}
     }
   ]
 })
