@@ -12,10 +12,10 @@
 3. 天气信息功能
 通过高德地图api实现
 4. 基本设置
-
+关于软件的一些基本设置
 ## 安装
 使用git克隆到本地
-通过 npm run build 进行打包，release 文件夹即应用.unpacked为 免安装版本 打开即可体验
+通过 npm run build 进行打包，release文件夹即应用。win-unpacked为免安装版本打开即可体验此应用
 目前仅支持win系统，其他系统未做适配。
 
 ## 界面展示
