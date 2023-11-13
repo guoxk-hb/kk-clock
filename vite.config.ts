@@ -18,18 +18,16 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '/image': fileURLToPath(new URL('./src/assets', import.meta.url))
     }
   },
   plugins: [
     vue(),
     ElectronDevPlugin(),
-    ElectronBuildPlugin(),
+    // ElectronBuildPlugin(),
     AutoImport({
       // Auto import functions from Vue, e.g. ref, reactive, toRef...
       // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
       imports: ['vue'],
-
       // Auto import functions from Element Plus, e.g. ElMessage, ElMessageBox... (with style)
       // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox... (带样式)
       resolvers: [
@@ -40,11 +38,14 @@ export default defineConfig({
         IconsResolver({
           prefix: 'Icon',
         }),
+        
       ],
-
+      // 生成auto-import.d.ts声明文件
+      dts: true // or a custom path
     }),
 
     Components({
+      extensions: ['vue'],
       resolvers: [
         // Auto register icon components
         // 自动注册图标组件
@@ -55,12 +56,30 @@ export default defineConfig({
         // 自动导入 Element Plus 组件
         ElementPlusResolver(),
       ],
-
+      // 生成components.d.ts
+      dts: true,
+      // 遍历子目录
+      deep: true
     }),
 
     Icons({
       autoInstall: true,
     }),
 
-  ]
+  ],
+  build: {
+    assetsDir: 'abc',
+    rollupOptions: {
+      output: {
+        entryFileNames: 'js/[name].[hash].js',
+        chunkFileNames: 'js/[name].[hash].js',
+        assetFileNames: '[ext]/[name].[hash].[ext]',
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor'
+          }
+        }
+      },
+    }
+  }
 })

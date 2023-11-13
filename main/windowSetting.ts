@@ -5,11 +5,11 @@ import path from "path";
 interface windowOptions {
   id: string;//按菜单顺序排列
   width: number;
-  height: number;
-  minWidth: number;
-  minHeight: number;
-  maxWidth: number;
-  maxHeight: number;
+  height?: number;
+  minWidth?: number;
+  minHeight?: number;
+  maxWidth?: number;
+  maxHeight?: number;
   transparent?: boolean;
   frame?: boolean;
   title: string;
@@ -22,25 +22,65 @@ interface windowOptions {
 
 export const clockOptions: windowOptions = {
   id: 'clock',
-  width: 900,
-  height: 400,
-  minWidth: 600,
-  minHeight: 400,
-  maxWidth: Infinity,
-  maxHeight: Infinity,
+  // width: 900,
+  // height: 400,
+  // minWidth: 600,
+  // minHeight: 400,
+  // maxWidth: Infinity,
+  // maxHeight: Infinity,
+  width: 400,
+  height: 275,
+  minWidth: 200,
+  minHeight: 138,
+  maxWidth: 400,
+  maxHeight: 275,
+  transparent: true,
+  frame: false,
+  title: "时钟",
+  alwaysOnTop: true,
+  // devTool: true,
+  aspectRatioSwtich: true,
+  aspectRatio: 1.45,
+  /**
+   * 日期和闹钟文字同时显示比例
+   */
   // width: 400,
   // height: 320,
   // minWidth: 200,
   // minHeight: 160,
   // maxWidth: 400,
   // maxHeight: 320,
-  transparent: true,
-  frame: false,
-  title: "时钟",
-  alwaysOnTop: true,
-  devTool: true,
-  aspectRatioSwtich: true,
-  aspectRatio: 1.31,
+  // aspectRatio: 1.31,
+  /**
+   * 日期和闹钟文字都不显示的比例
+   */
+  // width: 400,
+  // height: 107,
+  // minWidth: 75,
+  // minHeight: 20,
+  // maxWidth: 400,
+  // maxHeight: 107,
+  // aspectRatio: 3.75,
+  /**
+   * 日期文字显示
+   */
+  // width: 400,
+  // height: 229,
+  // minWidth: 150,
+  // minHeight: 86,
+  // maxWidth: 400,
+  // maxHeight: 229,
+  // aspectRatio: 1.75,
+  /**
+   * 闹钟文字显示
+   */
+  // width: 400,
+  // height: 178,
+  // minWidth: 150,
+  // minHeight: 66,
+  // maxWidth: 400,
+  // maxHeight: 178,
+  // aspectRatio: 2.25,
 }
 const notepadOptions: windowOptions = {
   id: 'notepad',
@@ -50,8 +90,8 @@ const notepadOptions: windowOptions = {
   minHeight: 400,
   maxWidth: Infinity,
   maxHeight: Infinity,
-  transparent: true,
-  frame: false,
+  transparent: false,
+  frame: true,
   title: "闹钟",
   url: '/notepad'
 }
@@ -63,14 +103,16 @@ const settingOptions: windowOptions = {
   minHeight: 400,
   maxWidth: Infinity,
   maxHeight: Infinity,
+  transparent: false,
+  frame: true,
   title: "时钟设置",
   url: '/setting',
-  devTool: true,
+  // devTool: true,
 }
 //记录创建的窗口
 const BrowserWindowsMap = new Map<string, BrowserWindow | null>()
 export function createWindow(windowOptions: windowOptions) {
-  if (BrowserWindowsMap.has(windowOptions.id)) {
+  if (BrowserWindowsMap.get(windowOptions.id)) {
     return false;
   }
   let win: BrowserWindow | null = new BrowserWindow({
@@ -82,7 +124,7 @@ export function createWindow(windowOptions: windowOptions) {
     maxHeight: windowOptions.maxHeight || Infinity,
     transparent: windowOptions.transparent || false,
     frame: windowOptions.frame || false,
-    title: windowOptions.title || '时钟',
+    title: windowOptions.title,
     alwaysOnTop: windowOptions.alwaysOnTop || false,
     autoHideMenuBar: true,
     hasShadow: true,
@@ -121,6 +163,9 @@ export function createWindow(windowOptions: windowOptions) {
     }
   });
   win.on("resize", async () => {
+    win?.webContents.send("resize")
+  })
+  win.on("resized", async () => {
     win?.webContents.send("resize")
   })
   win.on("closed", () => {
@@ -356,3 +401,7 @@ export function openNewWindow(win: BrowserWindow): void {
 //
 
 // export function 
+ipcMain.on('close-win-setting',(event, message)=>{
+  let win = BrowserWindowsMap.get('setting')
+  win?.destroy();
+})

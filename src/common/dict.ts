@@ -70,15 +70,15 @@ const timeFrameOptions=[
 const clockStyleOptions = [
   {
     value: 1,
-    label: 'electronic',
+    label: '普通',
   },
   {
     value: 2,
-    label: 'classical',
+    label: '古典',
   },
   {
     value:3,
-    label:'particle',
+    label:'粒子',
   }
 ]
 enum CLOCK_STYLE {

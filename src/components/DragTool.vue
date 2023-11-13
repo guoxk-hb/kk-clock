@@ -1,5 +1,5 @@
 <template>
-  <div @mouseenter ="mouseenter" @mouseleave="mouseleave" @mousedown="mousedown" @mouseup="mouseup" >
+  <div @mouseenter ="mouseenter" @mouseleave="mouseleave" @mousedown="mousedown" @mouseup="mouseup" class="unselectable" >
     <slot></slot>
   </div>
 </template>

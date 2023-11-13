@@ -46,17 +46,19 @@ interface District{
   level:string
   districts?:Array<District>
  }
-interface SettingForm{
+ interface SettingForm {
   ringVal: Array<number>,
   ringName: string,
   ringFileUrl: string,
   clockStyle: number, // 1 电子 2 古典 3 粒子
-  quit:number // 1 最小化 2 退出
-  bootstrap:boolean //开机自启
-  country: District,
-  province: District,
-  city: District,
-  county: District,
+  quit: number // 1 最小化 2 退出
+  bootstrap: boolean //开机自启
+  country: string,
+  province: string,
+  city: string,
+  county: string,
+  dateShow: true,
+  alarmShow: true,
 }
 //读取任务队列
 const settingPath = path.join(__dirname.replace('main', ''), 'setting.json')
@@ -67,7 +69,9 @@ export async function writeSetting(form:SettingForm) {
       if (err) {
         reject(err)
       }
-      resolve("写入成功")
+      resolve({
+        status:200,
+        text:"写入成功"})
     })
   })
   return dataObj

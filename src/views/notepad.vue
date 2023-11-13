@@ -178,7 +178,7 @@ const addTask = async () => {
 	await	window.electronAPI.updataTask()
 }
 //删
-const deleteTask = (index) => {
+const deleteTask = (index:number) => {
 	// console.log(index,"row");
 	ElMessageBox.confirm('确定要删除此任务吗?', 'warning', {
 		// if you want to disable its autofocus
@@ -205,8 +205,8 @@ const deleteTask = (index) => {
 		})
 }
 //改
-const editTask = (row) => {
-	scheduleTable.forEach(item => {
+const editTask = (row:task) => {
+	scheduleTable.forEach((item:task) => {
 		item.edit = false
 	})
 	row.edit = true
@@ -219,7 +219,7 @@ const editTask = (row) => {
 	editScheduleForm.week = row.week
 }
 //保存
-const saveTask = async (row) => {
+const saveTask = async (row:task) => {
 	row.edit = false
 	//row.id=editScheduleForm.id
 	row.date = editScheduleForm.date
@@ -232,7 +232,7 @@ const saveTask = async (row) => {
  await	window.electronAPI.updataTask()
 }
 //取消
-const cancelTask = (row) => {
+const cancelTask = (row:task) => {
 	row.edit = false
 }
 //初始化读取 task任务
@@ -244,11 +244,14 @@ initScheduleTable()
 
 function weekFormatter(week: Array<number>) {
 	// if(row)
-	if (week.length === 0 || week.length === 7) {
+	if(week.length === 0){
+		return '不重复'
+	}
+	else if (week.length === 7) {
 		return '每天'
 	} else {
 		let weekStr = '周'
-		week.forEach(item => {
+		week.forEach((item:number) => {
 			weekStr += WEEK[item] + '、'
 		})
 		weekStr = weekStr.substring(0, weekStr.length - 1)

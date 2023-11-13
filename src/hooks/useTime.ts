@@ -45,7 +45,11 @@ export default function(){
     let timeFrame = timeFrameOptions.find(
       (item) => item.value[0] <= Number(time.hours) && item.value[1] > Number(time.hours)
     )
+    if(timeFrame.label){
     return timeFrame.label
+    }else{
+      return ''
+    }
   })
   let lunar = ref<string>(toCnDate(new Date()))
   onMounted(() => {

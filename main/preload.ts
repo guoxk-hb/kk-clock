@@ -12,7 +12,6 @@ ipcRenderer.on('set-preload-data', (event, dataObject) => {
 contextBridge.exposeInMainWorld('electronAPI', {
   readTask: () => readTask(),
   writeTask: (task) => writeTask(task),
-  writeSetting:(setting)=>writeSetting(setting),
   readRing: () => readRing(),
   writeRing: (ring) => writeRing(ring),
   createSchedule:(item)=>ipcRenderer.send('create-schedule',item),
@@ -37,5 +36,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readSetting:()=>{
     return setting
   },
+  writeSetting:(setting)=>writeSetting(setting),
+  closeWin:()=>ipcRenderer.send('close-win-setting'),
   // readSetting:()=>readSetting(),
+  restartApp:()=>ipcRenderer.send('restart-app')
 })

@@ -13,7 +13,7 @@ class Particle {
   x: number
   y: number
   constructor() {
-    this.size = getRandom(1 * devicePixelRatio, 2 * devicePixelRatio)
+    this.size = getRandom(1 * devicePixelRatio, 1.25 * devicePixelRatio)
     const rad = (getRandom(0, 360) * Math.PI) / 100
     const r = Math.min(canvas.value.width, canvas.value.height) / 2;
     const cx = canvas.value.width / 2;

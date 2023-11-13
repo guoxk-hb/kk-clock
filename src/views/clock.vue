@@ -1,9 +1,9 @@
 <template>
   <div class="unselect box-border w-full min-w-full overflow-hidden">
-    <div class="box-border my-[4vw] border-soild rounded-md border-1 border-gray-300 shadow-lg">     
-      <electronic v-if="clockStyle==='electronic'"></electronic>
-      <particle v-else-if ="clockStyle==='particle'" ref="particleRef"></particle>
-      <div class=" overflow-hidden px-[2vw] flex justify-around rounded-md bg-violet-200/[.4]">
+    <div class="box-border border-soild rounded-md border-1 border-gray-300">
+      <electronic v-if="clockStyle === 'electronic'"></electronic>
+      <particle v-if="clockStyle === 'particle'" ref="particleRef"></particle>
+      <div v-if="setting?.dateShow" class="py-[2vw] overflow-hidden px-[2vw] flex justify-around rounded-md bg-violet-200/[.4]">
         <!-- bg-violet-200/[.4] -->
         <div style="letter-spacing: 0.5vw" class="text-[5vw]">
           <div class="h-[10vw] leading-[10vw]">
@@ -22,7 +22,8 @@
             <span class="text-[4.5vw]">{{ weatherInfo?.city }}</span>
           </div>
           <div style="letter-spacing: 1vw" class="pt-[0.5vw] h-[10vw] leading-[10vw]">
-            <el-tooltip placement="top" effect="light">
+            <el-tooltip placement="top" effect="light"
+              :disabled="!Boolean(weatherInfo?.humidity && weatherInfo?.windpower)">
               <template #content>
                 <div class="w-full overflow-hidden flex justify-between items-center text-[5vw]">
                   <el-tooltip content="空气湿度" placement="top" effect="light">
@@ -58,9 +59,9 @@
         <!-- text-orientation: upright; -->
       </div>
     </div>
-    <div @mouseenter="cancelScrollAnimation" @mouseleave="handleScrollAnimation"
+    <div v-if="setting?.alarmShow" @mouseenter="cancelScrollAnimation" @mouseleave="handleScrollAnimation"
       class=" overflow-hidden my-[2vw] px-[vw] py-[1vw] text-[5vw] border-soild rounded-md border-1 border-gray-300 bg-violet-200/[0.4] ">
-      <div v-if="recentTask?.week"
+      <div v-if="recentTask?.week || recentTask?.week === 0"
         class="float-left w-[18vw] mx-[1vw] text-center rounded-[1vw] border-violet-600 border ">星期{{
           WEEK[Number(recentTask?.week)] }}</div>
       <div v-if="recentTask?.date"
@@ -77,14 +78,17 @@
 
 <script setup lang="ts">
 import { formateTimestamp } from '@/common/common'
-import { WEEK, WEATHER , CLOCK_STYLE} from '@/common/dict'
+import { WEEK, WEATHER, CLOCK_STYLE } from '@/common/dict'
 import { getWeatherInfo } from '@/api/common'
-import humidityPng from '@/assets/humidity.png'
-import windpowerPng from '@/assets/windpower.png'
-import locationPng from '@/assets/location.png'
+import humidityPng from '/image/humidity.png'
+import windpowerPng from '/image/windpower.png'
+import locationPng from '/image/location.png'
 import electronic from '@/components/clock/electronic.vue'
 import particle from '@/components/clock/particle.vue'
 import useTime from '@/hooks/useTime'
+
+
+
 const { time, lunar } = useTime()
 // 停止requestAnimationFrame动画 时间
 let shouldStop = ref(false)
@@ -127,9 +131,11 @@ const initCanvasSize = () => {
 }
 //窗口移动后 重启滚动、重新计算距离
 window.electronAPI.frameResized(() => {
-  if (scrollText.value.scrollWidth > scrollText.value.clientWidth) {
-    cancelScrollAnimation()
-    handleScrollAnimation()
+  if (scrollText.value) {
+    if (scrollText.value?.scrollWidth > scrollText.value?.clientWidth) {
+      cancelScrollAnimation()
+      handleScrollAnimation()
+    }
   }
   if (particleRef.value) {
     // particleRef.value.initCanvasSize();
@@ -152,7 +158,7 @@ interface RecentTask extends Partial<Pick<Task, 'id' | 'date' | 'edit' | 'switch
 }
 //计算最近的定时闹钟
 function findRecentTask(task: Array<Task>) {
-  task = task.sort((a, b) => formateTimestamp(a.date) - formateTimestamp(b.date))
+  task = task.sort((a:Task, b:Task)=> formateTimestamp(a.date) - formateTimestamp(b.date))
   let recentTask: RecentTask | undefined
   for (let i = 0; i < task.length; i++) {
     if (task[i].switch === true &&
@@ -163,8 +169,11 @@ function findRecentTask(task: Array<Task>) {
       break
     }
   }
+  console.log(recentTask, 'recentTask');
+
   if (!recentTask) {
-    return findNotTodayRecentTask(task, time.day + 1)
+    let day = time.day === 6 ? 0 : time.day
+    return findNotTodayRecentTask(task, day + 1)
   } else {
     // console.log('第一遍找到了');
     return recentTask
@@ -179,6 +188,8 @@ function findNotTodayRecentTask(task: Array<Task>, day: number) {
       break
     }
   }
+  console.log(recentTask, '找到了吗', day);
+
   if (recentTask) {
     recentTask.week = day
     return recentTask
@@ -188,7 +199,7 @@ function findNotTodayRecentTask(task: Array<Task>, day: number) {
     }
   }
   else {
-    day = day === 6 ? 0 : day
+    day = (day === 6 ? 0 : day)
     return findNotTodayRecentTask(task, day + 1)
   }
 }
@@ -213,6 +224,8 @@ interface SettingForm {
   province: string,
   city: string,
   county: string,
+  dateShow: true,
+  alarmShow: true,
 }
 interface Live {
   adcode: string,
@@ -228,15 +241,18 @@ interface Live {
   windpower: string,
 }
 let weatherInfo = ref<Live>(null)
-let weather = ref('cloudy')
+let weather = ref<string>('cloudy')
 function getWeatherIcon() {
-  return `/src/assets/icon_weather/${weather.value}.png`
+  return `/icon_weather/${weather.value}.png`
 }
 //读取 setting
+let setting = ref<SettingForm>(null)
 let clockStyle = ref('')
 async function readSetting() {
   let settingRes: SettingForm = await window.electronAPI.readSetting()
-  clockStyle.value=CLOCK_STYLE[settingRes.clockStyle]
+  setting.value = settingRes
+  window.localStorage.setItem('setting', JSON.stringify(settingRes))
+  clockStyle.value = CLOCK_STYLE[settingRes.clockStyle]
   let weatherInfoRes = await getWeatherInfo({ city: settingRes.county })
   if (weatherInfoRes.data.status === '1') {
     weatherInfo.value = weatherInfoRes.data.lives[0]
