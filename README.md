@@ -1,4 +1,4 @@
-# kkClock-pc
+![image](https://github.com/guoxk-hb/kk-clock/assets/110437532/56615475-9b32-4514-91df-829ee6f92480)# kkClock-pc
 一款基于electron 开发的桌面时钟
 技术栈采用 Vue3、Vite、TypeScript、tailWindCss、element-plus、Electron、Electron-builder等。
 
@@ -19,7 +19,7 @@
 目前仅支持win系统，其他系统未做适配。
 
 ## 界面展示
-![输入图片说明](.vscode/image.png)
-![输入图片说明](.vscode/clock.png)
-![输入图片说明](.vscode/setting.png)
-![输入图片说明](.vscode/naozhong.png)
+![image](https://github.com/guoxk-hb/kk-clock/assets/110437532/86c0c193-fc51-45f5-8332-fd7c39056bcc)
+![image](https://github.com/guoxk-hb/kk-clock/assets/110437532/7774a002-600e-45d8-a6d5-3af3a5910157)
+![image](https://github.com/guoxk-hb/kk-clock/assets/110437532/d9214d87-2745-4736-9e5e-4b54f3c35d0b)
+![image](https://github.com/guoxk-hb/kk-clock/assets/110437532/c2280b33-cc7a-4020-816f-ab589c6bbb05)
